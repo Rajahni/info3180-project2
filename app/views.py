@@ -5,9 +5,14 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
-from flask import render_template, request, jsonify, send_file
-import os
+import os, datetime
+from app import app, db, login_manager
+from flask import render_template, request, jsonify, redirect, send_from_directory, url_for, flash, session, abort
+from flask_login import login_user, logout_user, current_user, login_required
+from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
+from app.models import User, Like, Post, Follow
+from app.forms import UserForm
 
 
 ###
@@ -17,6 +22,37 @@ import os
 @app.route('/')
 def index():
     return jsonify(message="This is the beginning of our API")
+
+app.route('/api/v1/register', methods=['POST'])
+def adduser():
+    userform = UserForm()
+
+    if request.method == 'POST':
+    
+    # Validate file upload on submit
+        if userform.validate_on_submit():
+
+            username = userform.username.data
+            password = userform.password.data
+            firstname = userform.firstname.data
+            lastname = userform.lastname.data
+            email = userform.email.data
+            location = userform.location.data
+            biography = userform.biography.data
+
+            # used to store filename in database instead of photo #
+            profile_photo = userform.profile_photo.data
+            filename = secure_filename(profile_photo.filename)
+            profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            user = User(username, password, firstname, lastname, email, location, biography, joined_on=datetime.datetime.now())
+            #                                                                                                                  #
+            usersrch = db.session.execute(db.select(User).filter_by(username=user.username)).scalar()
+
+            if usersrch is not None:
+                flash('Username already exists', 'danger')
+            elif usersrch is None:
+                usersrch = db.session.execute(db.select(User).filter_by(username=user.username)).scalar()
 
 
 ###
