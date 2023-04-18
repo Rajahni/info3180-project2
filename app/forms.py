@@ -19,5 +19,3 @@ class UserForm(FlaskForm):
                 FileAllowed(['jpg', 'png', 'jpeg'], 'Images Only!')
             ]
     )
-
-    joined_on = StringField('Joined On', [validators.InputRequired()])

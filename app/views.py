@@ -6,13 +6,14 @@ This file creates your application.
 """
 
 import os, datetime
-from app import app, db, login_manager
+from app import app, db
 from flask import render_template, request, jsonify, redirect, send_from_directory, url_for, flash, session, abort
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from app.models import User, Like, Post, Follow
 from app.forms import UserForm
+from flask_wtf.csrf import generate_csrf
 
 
 ###
@@ -23,7 +24,7 @@ from app.forms import UserForm
 def index():
     return jsonify(message="This is the beginning of our API")
 
-app.route('/api/v1/register', methods=['POST'])
+@app.route("/api/v1/register", methods=['POST'])
 def adduser():
     userform = UserForm()
 
@@ -45,15 +46,37 @@ def adduser():
             filename = secure_filename(profile_photo.filename)
             profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            user = User(username, password, firstname, lastname, email, location, biography, joined_on=datetime.datetime.now())
+            user = User(username, password, firstname, lastname, email, location, biography, profile_photo=filename, joined_on=datetime.datetime.now())
             #                                                                                                                  #
             usersrch = db.session.execute(db.select(User).filter_by(username=user.username)).scalar()
 
             if usersrch is not None:
                 flash('Username already exists', 'danger')
+                return usersrch.username
+                
             elif usersrch is None:
-                usersrch = db.session.execute(db.select(User).filter_by(username=user.username)).scalar()
 
+                db.session.add(user)
+                db.session.commit()
+                flash('User Added', 'success')
+
+                json_message = {"message":'New User Added Successfully',
+                                "firstname":firstname,
+                                "lastname":lastname,
+                                "username":username,
+                                "password":password,
+                                "email":email,
+                                "location":location,
+                                "biography":biography,
+                                "profile_photo":filename,
+                                "joined_on":datetime.datetime.now()}
+                return jsonify(json_message=json_message)
+            return jsonify(errors=form_errors(userform))
+        
+
+@app.route('/api/v1/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
 
 ###
 # The functions below should be applicable to all Flask apps.

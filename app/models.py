@@ -3,12 +3,12 @@ from werkzeug.security import generate_password_hash
 # Add any model classes for Flask-SQLAlchemy here
 
 class Post(db.Model):
-    __tablename__ = "Posts"
+    __tablename__ = "posts"
 
     id = db.Column(db.Integer, primary_key=True)
     caption = db.Column(db.String)
     photo = db.Column(db.String)
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id')) # attempt at creating a foreign key
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id')) # attempt at creating a foreign key
     created_on = db.Column(db.DateTime)
 
     def __init__(self, caption, photo, user_id, created_on):
@@ -21,11 +21,11 @@ class Post(db.Model):
         return f'<Post %r {self.id}>'
 
 class Like(db.Model):
-    __tablename__ = "Likes"
+    __tablename__ = "likes"
 
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     # post = db.relationship("Post", backref=db.backref("posts", uselist=False))
 
     def __init__(self, post_id, user_id):
@@ -36,11 +36,11 @@ class Like(db.Model):
         return f'<Like %r {self.id}>'
     
 class Follow(db.Model):
-    __tablename__ = "Follows"
+    __tablename__ = "follows"
 
     id = db.Column(db.Integer, primary_key=True)
     follower_id = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     # post = db.relationship("Post", backref=db.backref("posts", uselist=False))
 
     def __init__(self, follower_id, user_id):
@@ -51,7 +51,7 @@ class Follow(db.Model):
         return f'<Follow %r {self.id}>'
     
 class User(db.Model):
-    __tablename__ = "Users"
+    __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String)
