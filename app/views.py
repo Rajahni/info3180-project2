@@ -109,16 +109,29 @@ def login():
 
             # access_token = create_access_token(identity=user.id)
 
+            posts = db.session.execute(db.select(user.post)).scalar()
+
             # json_message = {"user":current_user.get_id(), "message":'User successfully logged in', "posts":user.post}
             # return jsonify(json_message=json_message)  
             posts = db.session.execute(db.select(Post)).scalars()
+            likes = db.session.execute(db.select(Like)).scalars()
             posts_data = []
+            likes_count = 0
+
+            for a_like in likes:
+                if int(post.id) == int(a_like.post_id()):
+                    likes_count+1
+            
 
             for post in posts:
                 if int(post.user_id) == int(current_user.get_id()):
                     posts_data.append({
                         "id":post.id,
-                        "userid":post.user_id
+                        "userid":post.user_id,
+                        "photo":url_for('get_image', filename=post.photo),
+                        "caption":post.caption,
+                        "created_on":post.created_on,
+                        "likes":likes_count
                     })
             return jsonify(data=posts_data)
         
@@ -173,6 +186,10 @@ def add_post():
             }
             return jsonify(json_message=json_message)
         return jsonify(errors=form_errors(newpost))
+    
+@app.route('/api/v1/posts/<filename>')
+def get_image(filename):
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
 
 ###
 # The functions below should be applicable to all Flask apps.
@@ -217,6 +234,4 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
-# @app.route('/api/v1/posters/<filename>')
-def get_image(filename):
-    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
+
