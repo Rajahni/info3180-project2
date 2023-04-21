@@ -12,8 +12,9 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from app.models import User, Like, Post, Follow
-from app.forms import UserForm, LoginForm
+from app.forms import UserForm, LoginForm, NewPost
 from flask_wtf.csrf import generate_csrf
+from flask_jwt_extended import create_access_token
 
 
 ###
@@ -53,14 +54,13 @@ def adduser():
 
             if usersrch is not None:
                 flash('Username already exists', 'danger')
-                return jsonify(message="User already exists")
+                return jsonify(message="Username already exists")
             
             elif emailsrch is not None:
                 flash('Email already exists', 'danger')
                 return jsonify(message="Email already exists")
                 
             elif usersrch is None:
-
                 db.session.add(user)
                 db.session.commit()
                 flash('User Added', 'success')
@@ -75,15 +75,17 @@ def adduser():
                                 "biography":biography,
                                 "profile_photo":filename,
                                 "joined_on":user.joined_on}
-                return jsonify(json_message=json_message)
+                return jsonify(json_message=json_message), 201
             
-            return jsonify('errors=form_errors(userform)')
+            return jsonify(errors=form_errors(userform))
     return jsonify(message="Not a POST request")
 
 @app.route('/api/v1/auth/login', methods=['POST', 'GET'])
 def login():
     if current_user.is_authenticated:
-        return jsonify(message="User already logged in")
+        # userID = current_user.get_id()
+        json_message = {"message":"User already logged in"}
+        return jsonify(json_message=json_message)
     
     loginform = LoginForm()
 
@@ -105,28 +107,72 @@ def login():
             login_user(user)
             flash('Logged in successfully.', 'success')
 
-            json_message = {"username":user.username}
-            return jsonify(json_message=json_message)  # The user should be redirected to the upload form instead
+            # access_token = create_access_token(identity=user.id)
+
+            # json_message = {"user":current_user.get_id(), "message":'User successfully logged in', "posts":user.post}
+            # return jsonify(json_message=json_message)  
+            posts = db.session.execute(db.select(Post)).scalars()
+            posts_data = []
+
+            for post in posts:
+                if int(post.user_id) == int(current_user.get_id()):
+                    posts_data.append({
+                        "id":post.id,
+                        "userid":post.user_id
+                    })
+            return jsonify(data=posts_data)
         
         flash('User does not exist', 'danger')
-    return jsonify(message="User does not exist")
+    return jsonify(message="User does not exist"), 400
 
 # the user ID stored in the session
 @login_manager.user_loader
 def load_user(id):
     return db.session.execute(db.select(User).filter_by(id=id)).scalar()
 
-@app.route('/api/v1/auth/logout')
+@app.route('/api/v1/auth/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
     flash('Logged out successfully', 'success')
-    return jsonify(message="Logged out successfully")
+    return jsonify(message="Logged out successfully"), 200
         
 
 @app.route('/api/v1/csrf-token', methods=['GET'])
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
+
+@app.route('/api/v1/users/{user_id}/posts', methods=['POST'])
+@login_required
+def add_post():
+    newpost = NewPost()
+
+    if current_user.is_authenticated:
+        userID = current_user.get_id()
+
+    if request.method == 'POST':
+        if newpost.validate_on_submit():
+
+            caption = newpost.caption.data
+
+            photo = newpost.photo.data
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            
+            user_id = userID
+            post = Post(caption, filename, user_id, created_on=datetime.datetime.now())
+            db.session.add(post)
+            db.session.commit()
+
+            json_message = {
+                "message":'Successfully created a new post',
+                "caption":caption,
+                "photo":filename,
+                "userID":user_id,
+                "created_on":post.created_on
+            }
+            return jsonify(json_message=json_message)
+        return jsonify(errors=form_errors(newpost))
 
 ###
 # The functions below should be applicable to all Flask apps.
@@ -170,3 +216,7 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
+# @app.route('/api/v1/posters/<filename>')
+def get_image(filename):
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)

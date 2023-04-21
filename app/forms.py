@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, validators, PasswordField
+from wtforms import StringField, validators, PasswordField, IntegerField
 
 # Add any form classes for Flask-WTF here
 
@@ -23,3 +23,12 @@ class UserForm(FlaskForm):
 class LoginForm(FlaskForm):
     username = StringField('Username', [validators.InputRequired()])
     password = PasswordField('Password', [validators.InputRequired()])
+
+class NewPost(FlaskForm):
+    caption = StringField('Caption', [validators.InputRequired()])
+
+    photo = FileField('Photo', validators=[
+                FileRequired(),
+                FileAllowed(['jpg', 'png', 'jpeg'], 'Images Only!')
+            ]
+    )
