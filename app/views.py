@@ -187,9 +187,9 @@ def add_post():
             return jsonify(json_message=json_message)
         return jsonify(errors=form_errors(newpost))
     
-@app.route('/api/v1/posts/<filename>')
+"""@app.route('/api/v1/posts/<filename>')
 def get_image(filename):
-    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)"""
 
 ###
 # The functions below should be applicable to all Flask apps.
@@ -234,4 +234,49 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
+@app.route('/api/v1/posts/<filename>')
+def get_image(filename):
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
 
+""""returns all posts for users"""
+@app.route('/api/v1/posts', methods=['POST','GET'])
+def get_posts():
+    if request.method == 'GET':
+        posts = db.session.execute(db.select(Post)).scalars()
+        posts_list = []
+        for post in posts:
+            likes = db.session.query(Post).join(Like,post.user_id==Like.user_id).count()
+            posts_list.append(
+                {
+                    "id": post.id,
+                    "user_id": post.user_id,
+                    "photo": url_for('get_image', filename=post.photo),
+                    "caption": post.caption,
+                    "created_on":post.created_on,   
+                    "likes": likes
+                }
+                )
+        return jsonify(posts=posts_list),201
+
+@app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
+def set_like(post_id):
+    if request.method == 'POST': 
+        data = request.get_json()
+        user_id = data['user_id']
+        isLiked = Like.query.filter(Like.post_id == post_id).filter(Like.user_id == user_id ).first()
+        print(isLiked)
+
+        if isLiked == None:
+            like = Like(post_id,user_id)
+            db.session.add(like)
+            db.session.commit()
+            num_of_likes = db.session.query(Post).join(Like,Post.user_id==Like.user_id).filter(post_id==Like.post_id).count()
+        
+
+
+        json_message = {
+            "message": "Post liked!",
+            "likes": num_of_likes
+        }
+
+        return jsonify(json_message=json_message),201
