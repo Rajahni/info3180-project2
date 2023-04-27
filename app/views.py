@@ -187,9 +187,9 @@ def add_post():
             return jsonify(json_message=json_message)
         return jsonify(errors=form_errors(newpost))
     
-@app.route('/api/v1/posts/<filename>')
+@"""app.route('/api/v1/posts/<filename>')
 def get_image(filename):
-    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)"""
 
 ###
 # The functions below should be applicable to all Flask apps.
