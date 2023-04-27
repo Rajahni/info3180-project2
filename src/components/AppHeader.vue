@@ -1,8 +1,11 @@
 <template>
   <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">VueJS with Flask</a>
+        <a class="navbar-brand" href="/">
+          <span class="nav-icon"><img alt="Photogram logo" class="nav-logo" src="@/assets/photo-logo.jpg"/></span>
+          <span class="Nav-name">Photogram</span>
+        </a>
         <button
           class="navbar-toggler"
           type="button"
@@ -15,7 +18,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto">
+          <ul class="navbar-nav ms-auto">
             <li class="nav-item">
               <RouterLink to="/" class="nav-link active">Home</RouterLink>
             </li>
@@ -38,4 +41,14 @@ import { RouterLink } from "vue-router";
 
 <style>
 /* Add any component specific styles here */
+nav{
+  background-color: #4a90e2;
+}
+
+img{
+  width: 25px;  
+  height: 25px;
+  padding-right: 5px;
+
+}
 </style>
