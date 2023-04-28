@@ -31,8 +31,20 @@ function fetchPosts() {
 }
 
 function likePost(post) {
-    post.liked = true;
-    post.likes += 1;
+  fetch("/api/v1/posts/post.id/like", {
+    method: 'POST'
+  })
+  .then((response) => response.json())
+  .then(function (data) {
+    if (!post.liked) {
+      post.liked = true;
+      post.likes += 1;
+      console.log(data);
+    }
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 }
 
 onMounted(() => {
@@ -41,7 +53,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="explore-container">
     <div class="post-list">
       <div class="post" v-for="post in posts" :key="post.id">
         <div class="user-info">
@@ -73,7 +85,7 @@ onMounted(() => {
 </template>
 
 <style>
-.container {
+.explore-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
@@ -104,9 +116,9 @@ onMounted(() => {
 .user-info img {
   width: 40px;
   height: 40px;
-  border: 1px solid black;
   border-radius: 50%;
   margin-right: 10px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .username {
@@ -149,6 +161,7 @@ onMounted(() => {
 
 .likes {
   font-weight: bold;
+  margin-right: 225px;
 }
 
 .date {
