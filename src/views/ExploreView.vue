@@ -31,7 +31,7 @@ function fetchPosts() {
 }
 
 function likePost(post) {
-  fetch("/api/v1/posts/post.id/like", {
+  fetch("/api/v1/posts/post_id/like", {
     method: 'POST'
   })
   .then((response) => response.json())
