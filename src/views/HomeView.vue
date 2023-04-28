@@ -6,50 +6,58 @@ let message = ref("Hello World! This is Group B's Photogram app.")
 </script>
 
 <template>
-  <div class="container">
+  <div class="home-container">
     <div class="left">
       <img src="rbridge.jpg" alt="Photo">
     </div>
     <div class="right">
       <div class="logo">
-        <img src="" alt="Photogram Logo">
+        <!-- <img src="" alt="Photogram Logo"> -->
         <h2>Photogram</h2>
+        <hr>
       </div>
       <p>Share photos of your favourite moments with friends, family and the world.</p>
       <div class="buttons">
-        <button class="register">Register</button>
-        <button class="login">Login</button>
+        <a href="/register"><button class="register">Register</button></a>
+        <a href="/login"><button class="login">Login</button></a>
       </div>
     </div>
   </div>
 </template>
 
 <style>
-.container {
+.home-container {
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px;
+  margin-top: 6%;
 }
 
 .left img {
-  width: 50%;
-  height: auto;
+  width: 500px;
+  height: 500px;
+} 
+
+.left, .right {
+  width: 500px;
+  height: 500px;
+  margin: 0 auto;
 }
 
 .right {
+  padding: 2%;
   text-align: center;
   border: 1px solid black;
-  width: 100%;
+  margin-left: 50px;
 }
 
-.logo img {
+/* .logo img {
   width: 100px;
   height: 100px;
   display: inline-block;
   margin-right: 10px;
   vertical-align: middle;
-}
+} */
 
 h2 {
   display: inline-block;

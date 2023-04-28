@@ -21,72 +21,83 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="post">
-      <div class="post-header">
-        <img :src="userPhoto" alt="User Photo">
-        <h3>{{ username }}</h3>
-      </div>
-      <img :src="photo" alt="Post Photo">
-      <div class="post-footer">
-        <i :class="{ 'fas fa-heart': liked, 'far fa-heart': !liked }" @click="like"></i>
-        <span>{{ likes }}</span>
-        <p>{{ createdOn }}</p>
+  <div class="container">
+    <div class="post-list">
+      <div class="post" v-for="post in posts" :key="post.id">
+        <div class="user-info">
+          <img :src="post.user.profile_photo" alt="Profile Photo">
+          <span class="username">{{ post.user.username }}</span>
+        </div>
+        <div class="post-image">
+          <img :src="post.photo" alt="Post Photo">
+        </div>
+        <div class="post-info">
+          <span class="caption">{{ post.caption }}</span>
+          <div class="likes-date">
+            <span class="likes">{{ post.likes }} likes</span>
+            <span class="date">{{ post.created_on }}</span>
+          </div>
+        </div>
       </div>
     </div>
-  </template>
+    <div class="new-post">
+      <button @click="newPost">New Post</button>
+    </div>
+  </div>
+</template>
 
 <style>
-.post {
-  border: 1px solid #dbdbdb;
-  border-radius: 3px;
+.post-list {
+  justify-content: space-between;
   margin-bottom: 20px;
-  background-color: #fff;
 }
 
-.post img {
+.post {
+  margin-bottom: 20px;
   width: 100%;
 }
 
-.post-header {
+.user-info {
   display: flex;
   align-items: center;
-  padding: 10px;
+  margin-bottom: 10px;
 }
 
-.post-header img {
-  width: 30px;
-  height: 30px;
+.user-info img {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   margin-right: 10px;
 }
 
-.post-header h3 {
-  font-size: 14px;
+.username {
+  font-weight: bold;
 }
 
-.post-footer {
+.post-image img {
+  max-width: 100%;
+}
+
+.caption {
+  font-weight: bold;
+}
+
+.likes-date {
   display: flex;
-  align-items: center;
-  padding: 10px;
+  justify-content: space-between;
+  margin-top: 10px;
 }
 
-.post-footer i {
-  font-size: 20px;
-  color: #dbdbdb;
-  margin-right: 10px;
-  cursor: pointer;
+.likes {
+  font-weight: bold;
 }
 
-.post-footer i:hover {
-  color: #ed4956;
+.date {
+  font-style: italic;
 }
 
-.post-footer span {
-  font-size: 14px;
-  margin-right: 10px;
-}
-
-.post-footer p {
-  font-size: 14px;
+.create-post {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
