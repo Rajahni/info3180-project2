@@ -48,7 +48,7 @@ def adduser():
             filename = secure_filename(profile_photo.filename)
             profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            user = User(username, password, firstname, lastname, email, location, biography, profile_photo=filename, joined_on=datetime.datetime.now())
+            user = User(username, password, firstname, lastname, email, location, biography, profile_photo=filename, joined_on=datetime.now())
             #                                                                                                                  #
             usersrch = db.session.execute(db.select(User).filter_by(username=user.username)).scalar()
             emailsrch = db.session.execute(db.select(User).filter_by(email=user.email)).scalar()
