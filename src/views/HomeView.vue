@@ -12,7 +12,7 @@ let message = ref("Hello World! This is Group B's Photogram app.")
     </div>
     <div class="right">
       <div class="logo">
-        <!-- <img src="" alt="Photogram Logo"> -->
+        <img src="logo.png" alt="Photogram Logo">
         <h2>Photogram</h2>
         <hr>
       </div>
@@ -42,22 +42,22 @@ let message = ref("Hello World! This is Group B's Photogram app.")
   width: 500px;
   height: 500px;
   margin: 0 auto;
+  border-radius: 4px;
 }
 
 .right {
   padding: 2%;
   text-align: center;
-  border: 1px solid black;
-  margin-left: 50px;
+  margin-left: 10px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
-/* .logo img {
-  width: 100px;
-  height: 100px;
+.logo img {
+  width: 70px;
+  height: 50px;
   display: inline-block;
-  margin-right: 10px;
   vertical-align: middle;
-} */
+}
 
 h2 {
   display: inline-block;

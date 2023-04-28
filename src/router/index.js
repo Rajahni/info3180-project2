@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import AddUserFormView from '../views/AddUserFormView.vue'
+import RegisterFormView from '../views/RegisterFormView.vue'
 import LoginFormView from '../views/LoginFormView.vue'
 import LogoutView from '../views/LogoutView.vue'
 import ExploreView from '../views/ExploreView.vue'
@@ -17,8 +17,8 @@ const router = createRouter({
     },
     {
       path: '/register',
-      name: 'AddUserFormView',
-      component: AddUserFormView
+      name: 'RegisterFormView',
+      component: RegisterFormView
     },
     {
       path: '/posts/new',
@@ -30,6 +30,11 @@ const router = createRouter({
       name: 'ProfileView',
       component: ProfileView
     },
+    // {
+    //   path: '/profile',
+    //   name: 'ProfileView',
+    //   component: ProfileView
+    // },
     {
       path: '/login',
       name: 'LoginFormView',

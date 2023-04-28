@@ -7,7 +7,7 @@
     </div>
     <div style="display: flex; justify-content: center;">
         <form @submit.prevent="login" method="post" enctype="multipart/form-data" id="loginForm" style="width: 400px;">
-            <h2>Please login</h2>
+            <h2>Login</h2>
 
             <label for="username" class="form-label">Enter Username</label>
             <input type="text" name="username" id="username" class="form-control">
