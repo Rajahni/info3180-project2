@@ -52,7 +52,7 @@
         let loginForm = document.getElementById("loginForm");
         let form_data = new FormData(loginForm);
         fetch("/api/v1/auth/login", {
-            methods: 'POST', 
+            method: 'POST', 
             body: form_data,
             headers: {
                 'X-CSRFToken': csrf_token.value
