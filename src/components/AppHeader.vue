@@ -35,6 +35,7 @@
               <template v-else> -->
                 <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
               <!-- </template> -->
+              <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
             </li>
           </ul>
         </div>

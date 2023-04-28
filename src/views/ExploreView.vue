@@ -101,7 +101,10 @@ onMounted(() => {
 .post {
   margin-bottom: 20px;
   padding: 20px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #bbbab8;
+  border-radius: 6px;
+  box-shadow: 0px 4px 10px 2px #bbbab8;
+  background-color: white;
 }
 
 .user-info {
