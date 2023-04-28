@@ -49,7 +49,10 @@ let message = ref("Hello World! This is Group B's Photogram app.")
   padding: 2%;
   text-align: center;
   margin-left: 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  background-color: white;
+  border: 1px solid #bbbab8;
+  border-radius: 6px;
+  box-shadow: 0px 4px 10px 2px #bbbab8;
 }
 
 .logo img {

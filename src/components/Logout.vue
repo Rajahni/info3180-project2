@@ -1,23 +1,29 @@
 <template>
+    <div
+        v-if="errorMessage"
+        class="alert alert-danger">
+        {{ errorMessage }}
+    </div>
+
+    <div
+        v-if="successMessage"
+        class="alert alert-success">
+        {{ successMessage }}
+    </div>
+
     <div class="logout-page">
-        <div
-            v-if="errorMessage"
-            class="alert alert-danger">
-            {{ errorMessage }}
-        </div>
-
-        <div
-            v-if="successMessage"
-            class="alert alert-success">
-            {{ successMessage }}
-        </div>
-
+        
         <div class="logout-box">
         
         <h1>Logging Out?</h1>
         <p>Are you sure you want to logout?</p>
-        <button @click="logout()">Yes</button>
-        <a href="/"><button >NO</button></a>
+
+        <div class="buttons">
+            <button @click="logout()" class="btn btn-lg btn-primary">YES</button>
+            <a href="/"><button class="btn btn-lg btn-primary ">NO</button></a>
+
+        </div>
+       
 
         </div>
     </div>
@@ -60,7 +66,7 @@ function logout(){
         })
         .catch(function (error){
             console.log(error);
-            errorMessage.value = "Logout Unsuccessful. Please Try Again";
+            errorMessage.value = "Logout Unsuccessful. Are you sure you are logged in?";
         });
 
 }
@@ -77,16 +83,37 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     height: 350px;
+    padding: 300px;
 
 }
 
 .logout-box{
-    border: 1px solid black;
+    border: 1px solid #bbbab8;
+    border-radius: 6px;
+    box-shadow: 0px 4px 10px 2px #bbbab8;
     padding: 1rem;
     text-align: center;
+    background-color: white;
+    width: 450px;
+    height: 350px;
 }
 
 .button{
+    margin-top: 1rem;
+}
+
+h1{
+    padding-top: 40px;
+    padding-bottom: 30px;
+}
+
+p{
+    padding: 10px;
+}
+
+.button-container{
+    display: flex;
+    justify-content: space-between;
     margin-top: 1rem;
 }
 </style>
