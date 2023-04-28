@@ -1,20 +1,40 @@
 <script setup>
 import { ref, onMounted } from "vue";
-// define a reactive property to hold the post data
 let posts = ref([]);
+
 function fetchPosts() {
-    fetch("/api/v1/posts", {
+    fetch("/api/v1/users/{user_id}/posts", {
         method: 'GET'
     })
     .then((response) => response.json())
     .then((data) => {
-        // update the posts reactive property with the data
-        posts.value = data.posts;
+      posts.value = data.posts.map(post => {
+        if (post.user === null) {
+          post.user = {
+            profile_photo: "",
+            username: ""
+          }
+        }
+        else if (!post.user) {
+          post.user = {
+            profile_photo: "",
+            username: "Unknown User"
+          }
+        }
+        post.liked = false;
+        return post;
+      });
     })
     .catch((error) => {
         console.log(error);
     });
 }
+
+function likePost(post) {
+    post.liked = true;
+    post.likes += 1;
+}
+
 onMounted(() => {
     fetchPosts();
 });
@@ -25,15 +45,21 @@ onMounted(() => {
     <div class="post-list">
       <div class="post" v-for="post in posts" :key="post.id">
         <div class="user-info">
-          <img :src="post.user.profile_photo" alt="Profile Photo">
+          <img :src="post.user.profile_photo" alt="Profile Photo" class="profile-photo">
           <span class="username">{{ post.user.username }}</span>
         </div>
         <div class="post-image">
-          <img :src="post.photo" alt="Post Photo">
+          <img :src="post.photo" alt="Post Photo" class="post-photo">
         </div>
         <div class="post-info">
           <span class="caption">{{ post.caption }}</span>
           <div class="likes-date">
+            <span class="heart-icon" :class="{ liked: post.liked }" @click="likePost(post)">
+              <svg class="heart" viewBox="0 0 32 29.6">
+                <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
+              c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
+            </svg>
+            </span>
             <span class="likes">{{ post.likes }} likes</span>
             <span class="date">{{ post.created_on }}</span>
           </div>
@@ -42,12 +68,19 @@ onMounted(() => {
     </div>
     <div class="new-post">
       <a href="/posts/new"><button class="newpost">New Post</button></a>
-      <button @click="newPost">New Post</button>
     </div>
   </div>
 </template>
 
 <style>
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .post-list {
   justify-content: space-between;
   margin-bottom: 20px;
@@ -55,7 +88,8 @@ onMounted(() => {
 
 .post {
   margin-bottom: 20px;
-  width: 100%;
+  padding: 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .user-info {
@@ -67,6 +101,7 @@ onMounted(() => {
 .user-info img {
   width: 40px;
   height: 40px;
+  border: 1px solid black;
   border-radius: 50%;
   margin-right: 10px;
 }
@@ -76,11 +111,9 @@ onMounted(() => {
 }
 
 .post-image img {
-  max-width: 100%;
-}
-
-.caption {
-  font-weight: bold;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 10px;
 }
 
 .likes-date {
@@ -88,6 +121,28 @@ onMounted(() => {
   justify-content: space-between;
   margin-top: 10px;
 }
+
+.heart-icon {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.heart {
+  fill: lightgray;
+  position: relative;
+  width: 20px;
+  animation: pulse 1s ease infinite;
+}
+
+.heart.liked {
+  fill: red;
+}
+
+/* @keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+} */
 
 .likes {
   font-weight: bold;
@@ -97,8 +152,7 @@ onMounted(() => {
   font-style: italic;
 }
 
-.create-post {
-  display: flex;
-  justify-content: flex-end;
+.new-post {
+  margin-left: 30px;
 }
 </style>

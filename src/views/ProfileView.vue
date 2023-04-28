@@ -35,39 +35,27 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from "vue";
+const user = ref(null);
+const isFollowing = ref(false);
 
-export default {
-  setup() {
-    // define a reactive property to hold the user data
-    const user = ref(null);
-    // define a reactive property to track whether the current user is following the profile
-    const isFollowing = ref(false);
-
-    // fetch user data from the server on component mount
-    onMounted(() => {
-      fetch("/api/v1/users/1") // replace 1 with the user id of the current profile being viewed
-        .then((response) => response.json())
-        .then((data) => {
-          user.value = data.user;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+onMounted(() => {
+  fetch("/api/v1/users/user_id")
+    .then((response) => response.json())
+    .then((data) => {
+      user.value = data.user;
+      isFollowing.value = data.isFollowing;
+    })
+    .catch((error) => {
+      console.log(error);
     });
-
-    return { user, isFollowing };
-  },
-};
+});
 </script>
 
 <style>
 /* add your styling here */
 </style>
 
-<style>
-/* add your styling here */
-</style>
 
   

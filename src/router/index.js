@@ -27,14 +27,14 @@ const router = createRouter({
     },
     {
       path: '/explore',
+      name: 'ExploreView',
+      component: ExploreView
+    },
+    {
+      path: '/profile',
       name: 'ProfileView',
       component: ProfileView
     },
-    // {
-    //   path: '/profile',
-    //   name: 'ProfileView',
-    //   component: ProfileView
-    // },
     {
       path: '/login',
       name: 'LoginFormView',
