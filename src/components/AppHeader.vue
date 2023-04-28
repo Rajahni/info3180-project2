@@ -29,12 +29,9 @@
               <RouterLink class="nav-link" to="/users/{user_id}" exact-active-class="active">My Profile</RouterLink>
             </li>
             <li class="nav-item">
-              <!-- <template v-if="!isLoggedIn"> -->
-                <RouterLink class="nav-link" to="/login" exact-active-class="active">Login</RouterLink>
-              <!-- </template>
-              <template v-else> -->
-                <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
-              <!-- </template> -->
+              <RouterLink class="nav-link" to="/login" exact-active-class="active">Login</RouterLink>
+            </li>
+            <li class="nav-item">
               <RouterLink class="nav-link" to="/logout">Logout</RouterLink>
             </li>
           </ul>
@@ -46,12 +43,6 @@
 
 <script setup>
 import { RouterLink } from "vue-router";
-// import { computed } from "vue";
-
-// const isLoggedIn = computed(() => {
-//   // replace this with your own logic to determine if the user is logged in or not
-//   return false;
-// });
 </script>
 
 <style>
@@ -76,8 +67,4 @@ img{
   color: white;
   font-weight: bold;
 }
-
-/* nav .nav-link.active {
-  color: pink;
-} */
 </style>
