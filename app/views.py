@@ -75,7 +75,7 @@ def adduser():
                                 "biography":biography,
                                 "profile_photo":filename,
                                 "joined_on":user.joined_on}
-                return jsonify(json_message=json_message), 201
+                return jsonify(json_message=json_message), 200
             
             return jsonify(errors=form_errors(userform))
     return jsonify(message="Not a POST request")
@@ -256,7 +256,7 @@ def get_posts():
                     "likes": likes
                 }
                 )
-        return jsonify(posts=posts_list),201
+        return jsonify(posts=posts_list),200
 
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
 def set_like(post_id):

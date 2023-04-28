@@ -1,19 +1,18 @@
 <template>
-     <div
-        v-if="displayFlash"
-        v-bind:class="[isSuccess ? alertSuccessClass : alertErrorClass]"
-        class="alert">
-        {{ flashMessage }}
-    </div>
     <div style="display: flex; justify-content: center;">
         <form @submit.prevent="login" method="post" enctype="multipart/form-data" id="loginForm" style="width: 400px;">
             <h2>Login</h2>
-
+            <div
+                v-if="displayFlash"
+                v-bind:class="[isSuccess ? alertSuccessClass : alertErrorClass]"
+                class="alert">
+                {{ flashMessage }}
+            </div>
             <label for="username" class="form-label">Enter Username</label>
-            <input type="text" name="username" id="username" class="form-control">
+            <input v-model="username" type="text" name="username" id="username" class="form-control">
 
-            <label for="pasword" class="form-label">Enter Password</label>
-            <input type="text" name="password" id="password" class="form-control">
+            <label for="password" class="form-label">Enter Password</label>
+            <input v-model="password" type="password" name="password" id="password" class="form-control">
 
             <button class="btn btn-lg btn-primary w-100 mt-3" type="submit">Login</button>
         </form>
@@ -22,6 +21,9 @@
 <script setup>
     import { ref, onMounted } from "vue";
     let csrf_token = ref("");
+    let username = ref("");
+    let password = ref("");
+
     // flash elements
     let flashMessage = ref("");
     let displayFlash = ref(false);
@@ -49,8 +51,8 @@
     function login() {
         let loginForm = document.getElementById("loginForm");
         let form_data = new FormData(loginForm);
-        fetch("/api/v1/register", {
-            method: 'POST',
+        fetch("/api/v1/auth/login", {
+            methods: 'POST', 
             body: form_data,
             headers: {
                 'X-CSRFToken': csrf_token.value

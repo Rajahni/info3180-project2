@@ -71,7 +71,7 @@
         profile_photo.value = "";
     }
     function saveUser() {
-        let movieForm = document.getElementById("userForm");
+        let userForm = document.getElementById("userForm");
         let form_data = new FormData(userForm);
         fetch("/api/v1/register", {
             method: 'POST',
