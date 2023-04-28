@@ -75,7 +75,7 @@ def adduser():
                                 "biography":biography,
                                 "profile_photo":filename,
                                 "joined_on":user.joined_on}
-                return jsonify(json_message=json_message), 201
+                return jsonify(json_message=json_message), 200
             
             return jsonify(errors=form_errors(userform))
     return jsonify(message="Not a POST request")

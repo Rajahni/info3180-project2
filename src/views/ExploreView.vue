@@ -41,6 +41,7 @@ onMounted(() => {
       </div>
     </div>
     <div class="new-post">
+      <a href="/posts/new"><button class="newpost">New Post</button></a>
       <button @click="newPost">New Post</button>
     </div>
   </div>

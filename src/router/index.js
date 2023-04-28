@@ -4,7 +4,8 @@ import AddUserFormView from '../views/AddUserFormView.vue'
 import LoginFormView from '../views/LoginFormView.vue'
 import LogoutView from '../views/LogoutView.vue'
 import ExploreView from '../views/ExploreView.vue'
-// import ProfileView from '../views/ProfileView.vue'
+import NewPostView from '../views/NewPostView.vue'
+import ProfileView from '../views/ProfileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,15 +21,15 @@ const router = createRouter({
       component: AddUserFormView
     },
     {
-      path: '/explore',
-      name: 'ExploreView',
-      component: ExploreView
+      path: '/posts/new',
+      name: 'NewPostView',
+      component: NewPostView
     },
-    // {
-    //   path: '/profile',
-    //   name: 'ProfileView',
-    //   component: ProfileView
-    // },
+    {
+      path: '/explore',
+      name: 'ProfileView',
+      component: ProfileView
+    },
     {
       path: '/login',
       name: 'LoginFormView',
