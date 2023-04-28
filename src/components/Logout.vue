@@ -52,7 +52,8 @@ function logout(){
     fetch("/api/v1/auth/logout", {
             method: 'POST',
             headers: {
-                'X-CSRFToken': csrf_token.value
+                'X-CSRFToken': csrf_token.value,
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
         })
         .then(function (response) {
@@ -62,6 +63,7 @@ function logout(){
             console.log(data);
             loggedIn.value = true;
             successMessage.value = "Logout Successful";
+            localStorage.removeItem('token');
             window.location.href = '/';
         })
         .catch(function (error){

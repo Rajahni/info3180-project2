@@ -68,7 +68,8 @@ fetch("/api/v1/users/{user_id}/posts", {
     method: 'POST',
     body: form_data,
     headers: {
-        'X-CSRFToken': csrf_token.value
+        'X-CSRFToken': csrf_token.value,
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
     }
 })
     .then(function (response) {
