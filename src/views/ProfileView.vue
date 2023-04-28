@@ -28,7 +28,7 @@
       <div class="image-grid-container">
       <div class="image-grid">
         <div v-for="image in images" :key="image.id" class="image-grid-item">
-          <img :src="image.url" alt="uplaoded photo"/>
+          <img :src="image.url" alt="uploaded photo"/>
         </div>
       </div>
       </div>
@@ -41,7 +41,7 @@ const user = ref(null);
 const isFollowing = ref(false);
 
 onMounted(() => {
-  fetch("/api/v1/users/user_id")
+  fetch("/api/v1/users/${route.params.user_id}")
     .then((response) => response.json())
     .then((data) => {
       user.value = data.user;
