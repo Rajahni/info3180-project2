@@ -4,6 +4,7 @@ import RegisterFormView from '../views/RegisterFormView.vue'
 import LoginFormView from '../views/LoginFormView.vue'
 import LogoutView from '../views/LogoutView.vue'
 import ExploreView from '../views/ExploreView.vue'
+import NewPostView from '../views/NewPostView.vue'
 import ProfileView from '../views/ProfileView.vue'
 
 const router = createRouter({
@@ -20,15 +21,20 @@ const router = createRouter({
       component: RegisterFormView
     },
     {
-      path: '/explore',
-      name: 'ExploreView',
-      component: ExploreView
+      path: '/posts/new',
+      name: 'NewPostView',
+      component: NewPostView
     },
     {
-      path: '/users/{user_id}',
+      path: '/explore',
       name: 'ProfileView',
       component: ProfileView
     },
+    // {
+    //   path: '/profile',
+    //   name: 'ProfileView',
+    //   component: ProfileView
+    // },
     {
       path: '/login',
       name: 'LoginFormView',
