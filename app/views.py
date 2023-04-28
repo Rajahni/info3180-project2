@@ -5,7 +5,9 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-import os, datetime
+import os, jwt
+from datetime import datetime, timedelta
+from functools import wraps
 from app import app, db, login_manager
 from flask import render_template, request, jsonify, redirect, send_from_directory, url_for, flash, session, abort
 from flask_login import login_user, logout_user, current_user, login_required
@@ -15,7 +17,6 @@ from app.models import User, Like, Post, Follow
 from app.forms import UserForm, LoginForm, NewPost
 from flask_wtf.csrf import generate_csrf
 from flask_jwt_extended import create_access_token
-
 
 ###
 # Routing for your application.
@@ -85,7 +86,7 @@ def login():
     if current_user.is_authenticated:
         # userID = current_user.get_id()
         json_message = {"message":"User already logged in"}
-        return jsonify(json_message=json_message)
+        return jsonify(json_message)
     
     loginform = LoginForm()
 
@@ -109,34 +110,83 @@ def login():
 
             # access_token = create_access_token(identity=user.id)
 
-            posts = db.session.execute(db.select(user.post)).scalar()
+            # posts = db.session.execute(db.select(user.post)).scalar()
 
             # json_message = {"user":current_user.get_id(), "message":'User successfully logged in', "posts":user.post}
             # return jsonify(json_message=json_message)  
-            posts = db.session.execute(db.select(Post)).scalars()
-            likes = db.session.execute(db.select(Like)).scalars()
-            posts_data = []
-            likes_count = 0
+            # posts = db.session.execute(db.select(Post)).scalars()
+            # likes = db.session.execute(db.select(Like)).scalars()
+            # posts_data = []
+            # likes_count = 0
 
-            for a_like in likes:
-                if int(post.id) == int(a_like.post_id()):
-                    likes_count+1
+            # for a_like in likes:
+            #     if int(post.id) == int(a_like.post_id()):
+            #         likes_count+1
             
 
-            for post in posts:
-                if int(post.user_id) == int(current_user.get_id()):
-                    posts_data.append({
-                        "id":post.id,
-                        "userid":post.user_id,
-                        "photo":url_for('get_image', filename=post.photo),
-                        "caption":post.caption,
-                        "created_on":post.created_on,
-                        "likes":likes_count
-                    })
-            return jsonify(data=posts_data)
+            # for post in posts:
+            #     if int(post.user_id) == int(current_user.get_id()):
+            #         posts_data.append({
+            #             "id":post.id,
+            #             "userid":post.user_id,
+            #             "photo":url_for('get_image', filename=post.photo),
+            #             "caption":post.caption,
+            #             "created_on":post.created_on,
+            #             "likes":likes_count
+            #         })
+
+            token = generate_token()
+
+            json_message = {"token":token,"message": "User successfully logged in."}
+            return jsonify(json_message=json_message)
         
         flash('User does not exist', 'danger')
     return jsonify(message="User does not exist"), 400
+
+def requires_auth(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    auth = request.headers.get('Authorization', None) # or request.cookies.get('token', None)
+
+    if not auth:
+      return jsonify({'code': 'authorization_header_missing', 'description': 'Authorization header is expected'}), 401
+
+    parts = auth.split()
+
+    if parts[0].lower() != 'bearer':
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}), 401
+    elif len(parts) == 1:
+      return jsonify({'code': 'invalid_header', 'description': 'Token not found'}), 401
+    elif len(parts) > 2:
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}), 401
+
+    token = parts[1]
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
+    except jwt.DecodeError:
+        return jsonify({'code': 'token_invalid_signature', 'description': 'Token signature is invalid'}), 401
+
+    g.current_user = user = payload
+    return f(*args, **kwargs)
+
+  return decorated
+
+
+@app.route("/api/v1/generate-token")
+def generate_token():
+    timestamp = datetime.utcnow()
+    payload = {
+        "sub": current_user.username,
+        "iat": timestamp,
+        "exp": timestamp + timedelta(minutes=5)
+    }
+
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+
+    return token
 
 # the user ID stored in the session
 @login_manager.user_loader
@@ -155,6 +205,7 @@ def logout():
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
 
+# Add new post by user
 @app.route('/api/v1/users/{user_id}/posts', methods=['POST'])
 @login_required
 def add_post():
@@ -173,7 +224,7 @@ def add_post():
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             
             user_id = userID
-            post = Post(caption, filename, user_id, created_on=datetime.datetime.now())
+            post = Post(caption, filename, user_id, created_on=datetime.now())
             db.session.add(post)
             db.session.commit()
 
@@ -186,6 +237,72 @@ def add_post():
             }
             return jsonify(json_message=json_message)
         return jsonify(errors=form_errors(newpost))
+
+# get all posts by user    
+@app.route('/api/v1/users/{user_id}/posts', methods=['GET'])
+@login_required
+def view_posts():
+    if current_user.is_authenticated:
+        userID = current_user.get_id()
+
+    if request.method == 'GET':
+        user = db.session.execute(db.select(User).filter_by(id=userID)).scalar()
+
+        posts = db.session.execute(db.select(Post)).scalars()
+        posts_data = []
+        
+        
+        for post in posts:
+            if int(post.user_id) == int(current_user.get_id()):
+                likes = db.session.query(Post).join(Like,post.user_id==Like.user_id).count()
+                posts_data.append(
+                {
+                    "id":post.id,
+                    "userid":post.user_id,
+                    "photo":url_for('get_image', filename=post.photo),
+                    "caption":post.caption,
+                    "created_on":post.created_on,
+                    "likes":likes
+                })
+        return jsonify(posts=posts_data),200
+
+@app.route('/api/v1/users/user_id', methods=['GET'])
+def get_user():
+    if current_user.is_authenticated:
+        userID = current_user.get_id()
+
+    if request.method == 'GET':
+        user = db.session.execute(db.select(User).filter_by(id=userID)).scalar()
+        posts = db.session.execute(db.select(Post)).scalars()
+        posts_list = []
+
+        json_user = {
+            "id": user.id,
+            "username": user.username,
+            "firstname": user.firstname,
+            "lastname": user.lastname,
+            "email": user.email,
+            "location": user.location,
+            "biography": user.biography,
+            "profile_photo": url_for('get_image', filename=user.profile_photo),
+            "joined_on": user.joined_on,
+            "posts":posts_list
+        }
+
+        for post in posts:
+            if int(post.user_id) == int(current_user.get_id()):
+                posts_list.append(
+                    {
+                        "id": post.id,
+                        "user_id": post.user_id,
+                        "photo": url_for('get_image', filename=post.photo),
+                        "caption": post.caption,
+                        "created_on":post.created_on,   
+                    }
+                )
+        return jsonify(json_user)
+
+        
     
 """@app.route('/api/v1/posts/<filename>')
 def get_image(filename):
