@@ -81,7 +81,7 @@ def adduser():
             return jsonify(errors=form_errors(userform))
     return jsonify(message="Not a POST request")
 
-@app.route('/api/v1/auth/login', methods=['POST', 'GET'])
+@app.route('/api/v1/auth/login', methods=['POST'])
 def login():
     if current_user.is_authenticated:
         # userID = current_user.get_id()
@@ -102,38 +102,13 @@ def login():
         if user is not None and check_password_hash(user.password, password):
             remember_me = False
 
+            login_user(user)
+
             if 'remember_me' in request.form:
                 remember_me = True
             
-            login_user(user)
-            flash('Logged in successfully.', 'success')
-
-            # access_token = create_access_token(identity=user.id)
-
-            # posts = db.session.execute(db.select(user.post)).scalar()
-
-            # json_message = {"user":current_user.get_id(), "message":'User successfully logged in', "posts":user.post}
-            # return jsonify(json_message=json_message)  
-            # posts = db.session.execute(db.select(Post)).scalars()
-            # likes = db.session.execute(db.select(Like)).scalars()
-            # posts_data = []
-            # likes_count = 0
-
-            # for a_like in likes:
-            #     if int(post.id) == int(a_like.post_id()):
-            #         likes_count+1
             
-
-            # for post in posts:
-            #     if int(post.user_id) == int(current_user.get_id()):
-            #         posts_data.append({
-            #             "id":post.id,
-            #             "userid":post.user_id,
-            #             "photo":url_for('get_image', filename=post.photo),
-            #             "caption":post.caption,
-            #             "created_on":post.created_on,
-            #             "likes":likes_count
-            #         })
+            flash('Logged in successfully.', 'success')
 
             token = generate_token()
 
