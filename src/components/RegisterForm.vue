@@ -8,7 +8,7 @@
             {{ flashMessage }}
         </div>
   
-        <form @submit.prevent="saveUser" method="post" enctype="multipart/form-data" id="userForm">
+        <form @submit.prevent="saveUser" method="post" enctype="multipart/form-data" id="userForm" style="width: 400px;">
             
             <label for="username" class="form-label">Username</label>
             <input type="text" name="username" id="username" class="form-control" >
@@ -84,20 +84,19 @@
             return response.json();
         })
         .then(function (data) {
-      console.log(data);
-      if ("errors" in data) {
-        flashMessage.value = [...data.errors];
-        isSuccess.value = false;
-        displayFlash.value = true;
-        } 
-      else {
-        displayFlash.value = true;
-        isSuccess.value = true;
-        flashMessage.value = "User added successfully!";
-        clearFormFields();
-        console.log(data);
-        }
-        
+          console.log(data);
+          if ("errors" in data) {
+            flashMessage.value = [...data.errors];
+            isSuccess.value = false;
+            displayFlash.value = true;
+          } 
+          else {
+            displayFlash.value = true;
+            isSuccess.value = true;
+            flashMessage.value = "User added successfully!";
+            clearFormFields();
+            console.log(data);
+          }
         })
         .catch(function (error) {
             console.log(error);

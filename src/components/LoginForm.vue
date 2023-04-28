@@ -30,6 +30,7 @@
     let isSuccess = ref(false);
     let alertSuccessClass = ref("alert-success");
     let alertErrorClass = ref("alert-danger");
+
     onMounted(() => {
         getCsrfToken();
     });
@@ -59,23 +60,28 @@
             }
         })
         .then(function (response) {
-            return response.json();
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Login failed.')
+            }
         })
         .then(function (data) {
-      console.log(data);
-      if ("errors" in data) {
-        flashMessage.value = [...data.errors];
-        isSuccess.value = false;
-        displayFlash.value = true;
-        } 
-      else {
-        displayFlash.value = true;
-        isSuccess.value = true;
-        flashMessage.value = "Login successful";
-        clearFormFields();
-        console.log(data);
-        }
-        
+            console.log(data);
+            if ("errors" in data) {
+                flashMessage.value = [...data.errors];
+                isSuccess.value = false;
+                displayFlash.value = true;
+            } 
+            else {
+                displayFlash.value = true;
+                isSuccess.value = true;
+                flashMessage.value = "Login successful";
+                clearFormFields();
+                // Redirect to the explore page
+                window.location.href = "/explore";
+                console.log(data);
+            }
         })
         .catch(function (error) {
             console.log(error);
