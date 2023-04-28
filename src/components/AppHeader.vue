@@ -1,8 +1,11 @@
 <template>
   <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">Photogram</a>
+        <a class="navbar-brand" href="/">
+          <span class="nav-icon"><img alt="Photogram logo" class="nav-logo" src="@/assets/photo-logo.jpg"/></span>
+          <span class="Nav-name">Photogram</span>
+        </a>
         <button
           class="navbar-toggler"
           type="button"
@@ -41,4 +44,14 @@ import { RouterLink } from "vue-router";
 
 <style>
 /* Add any component specific styles here */
+nav{
+  background-color: #4a90e2;
+}
+
+img{
+  width: 25px;  
+  height: 25px;
+  padding-right: 5px;
+
+}
 </style>
