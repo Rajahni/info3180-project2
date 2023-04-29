@@ -1,6 +1,6 @@
 <template>
     <div class="post-title">
-        <h3>New Post</h3>
+        <h2>New Post</h2>
     </div>
     
 

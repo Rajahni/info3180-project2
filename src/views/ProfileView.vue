@@ -44,30 +44,34 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-const user = ref(null);
-const isFollowing = ref(false);
-const posts = ref([]);
+let user = ref("");
+let user_id = ref("");
+let isFollowing = ref(false);
+let posts = ref([]);
+
+function getCsrfToken() {
+    fetch('/api/v1/csrf-token')
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data);
+        csrf_token.value = data.csrf_token;
+    })
+}
 
 onMounted(() => {
-  // fetch("/api/v1/users/${route.params.user_id}")
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     user.value = data.user;
-  //     isFollowing.value = data.isFollowing;
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
+  getCsrfToken();
   getUser();
   getPosts();
+  getFollowers();
 });
 
 function getUser(){
-  fetch("/api/v1/users/${route.params.user_id}")
+  fetch("/api/v1/users/user_id", {
+        method: 'GET'
+    })
     .then((response) => response.json())
     .then((data) => {
-      user.value = data.user;
-      isFollowing.value = data.isFollowing;
+      user_id.value = data.user_id;
     })
     .catch((error) => {
       console.log(error);
@@ -75,13 +79,26 @@ function getUser(){
 }
 
 function getPosts(){
-  fetch("/api/v1/users/${route.params.user_id}/posts")
+  fetch("/api/v1/users/user_id/posts", {
+        method: 'GET'
+    })
     .then(response => response.json())
     .then(data => {
-      console.log(posts)
+      console.log(posts);
       posts.value = data.posts;
     })
     .catch(error => {
+      console.log(error);
+    });
+}
+
+function getFollowers(){
+  fetch("/api/v1/users/user_id/follow")
+    .then((response) => response.json())
+    .then((data) => {
+      isFollowing.value = data.isFollowing;
+    })
+    .catch((error) => {
       console.log(error);
     });
 }
