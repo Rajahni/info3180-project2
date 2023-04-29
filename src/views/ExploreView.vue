@@ -1,54 +1,77 @@
 <script setup>
 import { ref, onMounted } from "vue";
 let posts = ref([]);
+let csrf_token = ref("");
 
-function fetchPosts() {
-    fetch("/api/v1/users/{user_id}/posts", {
-        method: 'GET'
-    })
+// fetch(`/api/cars/${self.$route.params.car_id}/favourite`,{
+function getCsrfToken() {
+  fetch("/api/v1/csrf-token")
     .then((response) => response.json())
     .then((data) => {
-      posts.value = data.posts.map(post => {
+      console.log(data);
+      csrf_token.value = data.csrf_token;
+    });
+}
+
+function fetchPosts() {
+  fetch("/api/v1/users/{user_id}/posts", {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      posts.value = data.posts.map((post) => {
         if (post.user === null) {
           post.user = {
             profile_photo: "",
-            username: ""
-          }
-        }
-        else if (!post.user) {
+            username: "",
+          };
+        } else if (!post.user) {
           post.user = {
             profile_photo: "",
-            username: "Unknown User"
-          }
+            username: "Unknown User",
+          };
         }
         post.liked = false;
         return post;
       });
     })
     .catch((error) => {
-        console.log(error);
+      console.log(error);
     });
 }
 
 function likePost(post) {
-  fetch("/api/v1/posts/post_id/like", {
-    method: 'POST'
+  let fav = new FormData();
+  fav.append("post_id", post.id);
+  fetch(`/api/v1/posts/${post.id}/like`, {
+    method: "POST",
+    headers: { "X-CSRFToken": csrf_token.value },
   })
-  .then((response) => response.json())
-  .then(function (data) {
-    if (!post.liked) {
-      post.liked = true;
-      post.likes += 1;
-      console.log(data);
-    }
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+    .then((response) => response.json())
+    .then((data) => {
+      if (!post.liked) {
+        post.liked = true;
+        post.likes += 1;
+        console.log(data);
+      }
+    })
+    .catch((error) => console.log(error));
+  // .then(function (data) {
+  //   // if (!post.liked) {
+  //   //   post.liked = true;
+  //   //   post.likes += 1;
+  //   //   console.log(data);
+  //   // }
+  //   console.log("test");
+  // })
+  // .catch((error) => {
+  //   console.log(error);
+  // });
 }
 
 onMounted(() => {
-    fetchPosts();
+  getCsrfToken();
+  fetchPosts();
 });
 </script>
 
@@ -57,20 +80,30 @@ onMounted(() => {
     <div class="post-list">
       <div class="post" v-for="post in posts" :key="post.id">
         <div class="user-info">
-          <img :src="post.user.profile_photo" alt="Profile Photo" class="profile-photo">
+          <img
+            :src="post.user.profile_photo"
+            alt="Profile Photo"
+            class="profile-photo"
+          />
           <span class="username">{{ post.user.username }}</span>
         </div>
         <div class="post-image">
-          <img :src="post.photo" alt="Post Photo" class="post-photo">
+          <img :src="post.photo" alt="Post Photo" class="post-photo" />
         </div>
         <div class="post-info">
           <span class="caption">{{ post.caption }}</span>
           <div class="likes-date">
-            <span class="heart-icon" :class="{ liked: post.liked }" @click="likePost(post)">
+            <span
+              class="heart-icon"
+              :class="{ liked: post.liked }"
+              @click="likePost(post)"
+            >
               <svg class="heart" viewBox="0 0 32 29.6">
-                <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
-              c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-            </svg>
+                <path
+                  d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
+              c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"
+                />
+              </svg>
             </span>
             <span class="likes">{{ post.likes }} likes</span>
             <span class="date">{{ post.created_on }}</span>
