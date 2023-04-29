@@ -15,7 +15,7 @@
             <label for="password" class="form-label">Enter Password</label>
             <input v-model="password" type="password" name="password" id="password" class="form-control">
 
-            <button class="btn btn-lg btn-primary w-100 mt-3" id="login-btn" type="submit">Login</button>
+            <button class="btn btn-lg btn-primary w-100 mt-5" id="login-btn" type="submit">Login</button>
         </form>
     </div>
     </div>

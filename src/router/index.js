@@ -31,7 +31,7 @@ const router = createRouter({
       component: ExploreView
     },
     {
-      path: '/users/{user_id}',
+      path: '/users/user_id',
       name: 'ProfileView',
       component: ProfileView
     },
