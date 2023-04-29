@@ -276,8 +276,26 @@ def get_user():
                     }
                 )
         return jsonify(json_user)
-
-        
+@app.route('/api/users/{user_id}/follow', methods = ['POST'])
+def follow(user_id):
+    data = request.get_json()
+    #so the follow request is in the database
+    if request.method == 'POST':
+         try:
+             follower_id = data['follower_id']
+             id = data['id']
+             user_id = current_user['user_id']
+             follow = Follow(id, user_id, follower_id)
+             db.session.add(follow)
+             db.session.commit()
+             
+             success = f"You are now following user {user_id}."
+             return jsonify(message=success), 201
+         except Exception as e:
+           return {"Failure to add because of:": str(e)}
+       
+            #Flash message to indicate that an error occurred
+                  
     
 """@app.route('/api/v1/posts/<filename>')
 def get_image(filename):
