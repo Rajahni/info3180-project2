@@ -247,13 +247,14 @@ def view_posts():
         return jsonify(posts=posts_data),200
 
 @app.route('/api/v1/users/user_id', methods=['GET'])
-def get_user():
+def get_user(user_id):
     if current_user.is_authenticated:
-        userID = current_user.get_id()
+        user_id = current_user.get_id()
 
     if request.method == 'GET':
-        user = db.session.execute(db.select(User).filter_by(id=userID)).scalar()
-        posts = db.session.execute(db.select(Post)).scalars()
+        user = db.session.execute(db.select(User).filter_by(id=user_id)).scalar()
+        posts = db.session.execute(db.select(Post).filter_by(user_id=user_id)).scalars()
+        # posts = db.session.execute(db.select(Post)).scalars()
         posts_list = []
 
         json_user = {
@@ -281,6 +282,7 @@ def get_user():
                     }
                 )
         return jsonify(json_user)
+    
 @app.route('/api/users/{user_id}/follow', methods = ['POST'])
 def follow(user_id):
     data = request.get_json()
@@ -288,9 +290,9 @@ def follow(user_id):
     if request.method == 'POST':
          try:
              follower_id = data['follower_id']
-             id = data['id']
-             user_id = current_user['user_id']
-             follow = Follow(id, user_id, follower_id)
+            #  id = data['id']
+            #  user_id = current_user['user_id']
+             follow = Follow(user_id, follower_id)
              db.session.add(follow)
              db.session.commit()
              
