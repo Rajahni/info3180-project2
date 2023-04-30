@@ -14,25 +14,18 @@ function getCsrfToken() {
 }
 
 function fetchPosts() {
-  fetch("/api/v1/users/{user_id}/posts", {
-    method: "GET",
-  })
+  fetch("/api/v1/users/{user_id}/posts")
     .then((response) => response.json())
     .then((data) => {
       posts.value = data.posts.map((post) => {
-        if (post.user === null) {
-          post.user = {
-            profile_photo: "",
-            username: "",
-          };
-        } else if (!post.user) {
-          post.user = {
-            profile_photo: "",
-            username: "Unknown User",
-          };
-        }
-        post.liked = false;
-        return post;
+        return {
+          ...post,
+          likes: post.likes || 0, // set likes to 0 if likes is not defined
+          user: {
+            profile_photo: post.user ? post.user.profile_photo : "",
+            username: post.user ? post.user.username : "",
+          }
+        };
       });
     })
     .catch((error) => {
@@ -52,21 +45,11 @@ function likePost(post) {
       if (!post.liked) {
         post.liked = true;
         post.likes += 1;
+        post.disabled = true; // disable the button after the user has liked the post
         console.log(data);
       }
     })
     .catch((error) => console.log(error));
-  // .then(function (data) {
-  //   // if (!post.liked) {
-  //   //   post.liked = true;
-  //   //   post.likes += 1;
-  //   //   console.log(data);
-  //   // }
-  //   console.log("test");
-  // })
-  // .catch((error) => {
-  //   console.log(error);
-  // });
 }
 
 onMounted(() => {
@@ -97,6 +80,7 @@ onMounted(() => {
               class="heart-icon"
               :class="{ liked: post.liked }"
               @click="likePost(post)"
+              :disabled="post.disabled"
             >
               <svg class="heart" viewBox="0 0 32 29.6">
                 <path
@@ -143,15 +127,14 @@ onMounted(() => {
 .user-info {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .user-info img {
-  width: 40px;
+  width: 45px;
   height: 40px;
   border-radius: 50%;
-  margin-right: 10px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  margin-right: 5px;
 }
 
 .username {

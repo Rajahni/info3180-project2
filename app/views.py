@@ -234,6 +234,10 @@ def view_posts():
                 posts_data.append(
                 {
                     "id":post.id,
+                    "user": {
+                    "profile_photo": url_for('get_image', filename=user.profile_photo),
+                    "username": user.username
+                    },
                     "userid":post.user_id,
                     "photo":url_for('get_image', filename=post.photo),
                     "caption":post.caption,
@@ -383,6 +387,12 @@ def set_like(post_id):
             like = Like(post_id, current_user.id)
             db.session.add(like)
             db.session.commit()
+        else:
+            json_message = {
+                "message": "You already liked this post!",
+                "likes": num_of_likes ,
+            }
+            return jsonify(json_message=json_message),400
         
         post = db.session.execute(db.select(Post).filter_by(id = post_id)).scalar()
         num_of_likes = len(db.session.execute(db.select(Like).filter_by(post_id=post.id)).all())
