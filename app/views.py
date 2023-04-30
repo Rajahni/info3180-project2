@@ -99,8 +99,8 @@ def login():
 
         user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
         
-        #if user is not None and check_password_hash(user.password, password):
-        if user is not None and user.password == password:
+        if user is not None and check_password_hash(user.password, password):
+        #if user is not None and user.password == password:
             remember_me = False
 
             login_user(user)
