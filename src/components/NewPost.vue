@@ -1,5 +1,8 @@
 <template>
-    <h1>HI</h1>
+    <div class="post-title">
+        <h2>New Post</h2>
+    </div>
+    
 
     <div v-if="errorMessage" class="alert alert-danger">
         <ul>
@@ -9,7 +12,8 @@
 
     <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
 
-    <form id="newPost" @submit.prevent="uploadPost">
+    <div class="newPost">
+        <form id="newPost"  @submit.prevent="uploadPost">
 
         <div class="form-group mb-3">
         <label for="photo" class="form-label">Photo</label>
@@ -34,12 +38,13 @@
             </textarea>
         </div>
 
-        
-
         <button class="btn btn-primary" type="submit">Submit</button>
 
 
-    </form>
+        </form>
+    </div>
+
+    
 
 
 </template>
@@ -63,7 +68,8 @@ fetch("/api/v1/users/{user_id}/posts", {
     method: 'POST',
     body: form_data,
     headers: {
-        'X-CSRFToken': csrf_token.value
+        'X-CSRFToken': csrf_token.value,
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
     }
 })
     .then(function (response) {
@@ -103,5 +109,31 @@ function getCsrfToken() {
     })
 }
 
-
 </script>
+
+<style>
+
+.post-title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+}
+.newPost{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    width: 400px;
+    height: 350px;
+    margin: auto;
+    border: 1px solid #bbbab8;
+    border-radius: 6px;
+    box-shadow: 0px 4px 10px 2px #bbbab8;
+}
+
+textarea{
+    height: 100px;
+    width: 350px;
+}
+</style>

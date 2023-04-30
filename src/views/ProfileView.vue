@@ -28,7 +28,14 @@
       <div class="image-grid-container">
       <div class="image-grid">
         <div v-for="image in images" :key="image.id" class="image-grid-item">
-          <img :src="image.url" alt="uplaoded photo"/>
+          <img :src="image.url" alt="uploaded photo"/>
+
+          <div v-for="post in posts" :key="post.id">
+            <img :src="post.photo" alt="Post Photo" />
+            <p>{{ post.caption }}</p>
+            <p>{{ post.created_on }}</p>
+            <p>{{ post.likes }} likes</p>
+          </div>
         </div>
       </div>
       </div>
@@ -37,25 +44,68 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-const user = ref(null);
-const isFollowing = ref(false);
+let user = ref("");
+let user_id = ref("");
+let isFollowing = ref(false);
+let posts = ref([]);
 
-onMounted(() => {
-  fetch("/api/v1/users/user_id")
+function getCsrfToken() {
+    fetch('/api/v1/csrf-token')
     .then((response) => response.json())
     .then((data) => {
-      user.value = data.user;
+        console.log(data);
+        csrf_token.value = data.csrf_token;
+    })
+}
+
+onMounted(() => {
+  getCsrfToken();
+  getUser();
+  getPosts();
+  getFollowers();
+});
+
+function getUser(){
+  fetch("/api/v1/users/user_id", {
+        method: 'GET'
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      user_id.value = data.user_id;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+function getPosts(){
+  fetch("/api/v1/users/user_id/posts", {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(posts);
+      posts.value = data.posts;
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+function getFollowers(){
+  fetch("/api/v1/users/user_id/follow")
+    .then((response) => response.json())
+    .then((data) => {
       isFollowing.value = data.isFollowing;
     })
     .catch((error) => {
       console.log(error);
     });
-});
+}
+
 </script>
 
 <style>
 /* add your styling here */
 </style>
 
-
-  

@@ -1,7 +1,8 @@
 <template>
-    <div style="display: flex; justify-content: center;">
+    <div class="login-container">
+        <h2>Login</h2>
+        <div style="display: flex; justify-content: center;" class="login-form">
         <form @submit.prevent="login" method="post" enctype="multipart/form-data" id="loginForm" style="width: 400px;">
-            <h2>Login</h2>
             <div
                 v-if="displayFlash"
                 v-bind:class="[isSuccess ? alertSuccessClass : alertErrorClass]"
@@ -14,9 +15,11 @@
             <label for="password" class="form-label">Enter Password</label>
             <input v-model="password" type="password" name="password" id="password" class="form-control">
 
-            <button class="btn btn-lg btn-primary w-100 mt-3" type="submit">Login</button>
+            <button class="btn btn-lg btn-primary w-100 mt-5" id="login-btn" type="submit">Login</button>
         </form>
     </div>
+    </div>
+    
 </template>
 <script setup>
     import { ref, onMounted } from "vue";
@@ -88,3 +91,31 @@
         });
     }
 </script>
+
+<style>
+.login-container{
+    padding-top: 100px;
+}
+
+.login-container h2{
+    justify-content: center;
+    display: flex; 
+    justify-content: center;
+}
+
+.login-form{
+    background-color: white;
+    border: 1px solid #bbbab8;
+    border-radius: 6px;
+    box-shadow: 0px 4px 10px 2px #bbbab8;
+    width: auto;
+    margin: auto;
+    width: 500px;
+    height: 450px;
+}
+
+form#loginForm{
+    padding-top: 50px;
+}
+
+</style>

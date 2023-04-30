@@ -1,6 +1,10 @@
 <template>
+  <div class="reg-title">
+    <h2>Register</h2>
+  </div>
+
     <div class="register-form-container">
-        <h2>Register</h2>
+        
         <div
             v-if="displayFlash"
             v-bind:class="[isSuccess ? alertSuccessClass : alertErrorClass]"
@@ -106,6 +110,19 @@
 
 <style>
   .register-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    width: 500px;
+    height: 950px;
+    margin: auto;
+    border: 1px solid #bbbab8;
+    border-radius: 6px;
+    box-shadow: 0px 4px 10px 2px #bbbab8;
+  }
+
+  .reg-title{
     display: flex;
     flex-direction: column;
     align-items: center;

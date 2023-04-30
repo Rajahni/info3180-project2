@@ -100,6 +100,7 @@ def login():
         user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
         
         if user is not None and check_password_hash(user.password, password):
+        #if user is not None and user.password == password:
             remember_me = False
 
             login_user(user)
@@ -233,6 +234,10 @@ def view_posts():
                 posts_data.append(
                 {
                     "id":post.id,
+                    "user": {
+                    "profile_photo": url_for('get_image', filename=user.profile_photo),
+                    "username": user.username
+                    },
                     "userid":post.user_id,
                     "photo":url_for('get_image', filename=post.photo),
                     "caption":post.caption,
@@ -276,12 +281,31 @@ def get_user():
                     }
                 )
         return jsonify(json_user)
-
-        
+@app.route('/api/users/{user_id}/follow', methods = ['POST'])
+def follow(user_id):
+    data = request.get_json()
+    #so the follow request is in the database
+    if request.method == 'POST':
+         try:
+             follower_id = data['follower_id']
+             id = data['id']
+             user_id = current_user['user_id']
+             follow = Follow(id, user_id, follower_id)
+             db.session.add(follow)
+             db.session.commit()
+             
+             success = f"You are now following user {user_id}."
+             return jsonify(message=success), 201
+         except Exception as e:
+           return {"Failure to add because of:": str(e)}
+       
+            #Flash message to indicate that an error occurred
+                  
     
 """@app.route('/api/v1/posts/<filename>')
 def get_image(filename):
     return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)"""
+    
 
 ###
 # The functions below should be applicable to all Flask apps.
@@ -332,12 +356,13 @@ def get_image(filename):
 
 """"returns all posts for users"""
 @app.route('/api/v1/posts', methods=['POST','GET'])
+@login_required
 def get_posts():
     if request.method == 'GET':
         posts = db.session.execute(db.select(Post)).scalars()
         posts_list = []
         for post in posts:
-            likes = db.session.query(Post).join(Like,post.user_id==Like.user_id).count()
+            likes = len(db.session.execute(db.select(Like).filter_by(id=post.id)).all())
             posts_list.append(
                 {
                     "id": post.id,
@@ -349,26 +374,33 @@ def get_posts():
                 }
                 )
         return jsonify(posts=posts_list),200
-
+    
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
+@login_required
 def set_like(post_id):
-    if request.method == 'POST': 
-        data = request.get_json()
-        user_id = data['user_id']
-        isLiked = Like.query.filter(Like.post_id == post_id).filter(Like.user_id == user_id ).first()
-        print(isLiked)
 
-        if isLiked == None:
-            like = Like(post_id,user_id)
+    if request.method == 'POST': 
+        
+        isLiked = Like.query.filter(Like.post_id == post_id).filter(Like.user_id == current_user.id ).first()
+
+        if isLiked == None: 
+            like = Like(post_id, current_user.id)
             db.session.add(like)
             db.session.commit()
-            num_of_likes = db.session.query(Post).join(Like,Post.user_id==Like.user_id).filter(post_id==Like.post_id).count()
+        else:
+            json_message = {
+                "message": "You already liked this post!",
+                "likes": num_of_likes ,
+            }
+            return jsonify(json_message=json_message),400
         
+        post = db.session.execute(db.select(Post).filter_by(id = post_id)).scalar()
+        num_of_likes = len(db.session.execute(db.select(Like).filter_by(post_id=post.id)).all())
 
-
+    
         json_message = {
             "message": "Post liked!",
-            "likes": num_of_likes
+            "likes": num_of_likes ,
         }
 
         return jsonify(json_message=json_message),201

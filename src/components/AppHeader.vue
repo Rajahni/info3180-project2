@@ -26,7 +26,7 @@
               <RouterLink class="nav-link" to="/explore" exact-active-class="active">Explore</RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/users/{user_id}" exact-active-class="active">My Profile</RouterLink>
+              <RouterLink class="nav-link" to="/users/user_id" exact-active-class="active">My Profile</RouterLink>
             </li>
             <li class="nav-item">
               <RouterLink class="nav-link" to="/login" exact-active-class="active">Login</RouterLink>
@@ -67,8 +67,4 @@ img{
   color: white;
   font-weight: bold;
 }
-
-/* nav .nav-link.active {
-  color: pink;
-} */
 </style>
