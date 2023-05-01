@@ -181,10 +181,10 @@ def logout():
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
 
-# Add new post by user
-@app.route('/api/v1/users/{user_id}/posts', methods=['POST'])
+
+"""@app.route('/api/v1/users/{user_id}/posts', methods=['POST','GET'])
 @login_required
-def add_post():
+def posts():
     newpost = NewPost()
 
     if current_user.is_authenticated:
@@ -212,14 +212,7 @@ def add_post():
                 "created_on":post.created_on
             }
             return jsonify(json_message=json_message)
-        return jsonify(errors=form_errors(newpost))
-
-# get all posts by user    
-@app.route('/api/v1/users/{user_id}/posts', methods=['GET'])
-@login_required
-def view_posts():
-    if current_user.is_authenticated:
-        userID = current_user.get_id()
+        #return jsonify(errors=form_errors(newpost))
 
     if request.method == 'GET':
         user = db.session.execute(db.select(User).filter_by(id=userID)).scalar()
@@ -244,9 +237,10 @@ def view_posts():
                     "created_on":post.created_on,
                     "likes":likes
                 })
-        return jsonify(posts=posts_data),200
+        return jsonify(posts=posts_data),200"""
 
-@app.route('/api/v1/users/user_id', methods=['GET'])
+
+"""@app.route('/api/v1/users/user_id', methods=['GET'])
 def get_user():
     if current_user.is_authenticated:
         userID = current_user.get_id()
@@ -280,8 +274,9 @@ def get_user():
                         "created_on":post.created_on,   
                     }
                 )
-        return jsonify(json_user)
-@app.route('/api/users/{user_id}/follow', methods = ['POST'])
+        return jsonify(json_user)"""
+    
+"""@app.route('/api/users/{user_id}/follow', methods = ['POST'])
 def follow(user_id):
     data = request.get_json()
     #so the follow request is in the database
@@ -299,14 +294,9 @@ def follow(user_id):
          except Exception as e:
            return {"Failure to add because of:": str(e)}
        
-            #Flash message to indicate that an error occurred
+            #Flash message to indicate that an error occurred"""
                   
     
-"""@app.route('/api/v1/posts/<filename>')
-def get_image(filename):
-    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)"""
-    
-
 ###
 # The functions below should be applicable to all Flask apps.
 ###
@@ -354,6 +344,121 @@ def page_not_found(error):
 def get_image(filename):
     return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
 
+@app.route('/api/v1/users/{user_id}', methods=['GET'])
+def get_user():
+    if current_user.is_authenticated:
+        userID = current_user.get_id()
+
+    if request.method == 'GET':
+        user = db.session.execute(db.select(User).filter_by(id=userID)).scalar()
+        posts = db.session.execute(db.select(Post)).scalars()
+        posts_list = []
+
+        json_user = {
+            "id": user.id,
+            "username": user.username,
+            "firstname": user.firstname,
+            "lastname": user.lastname,
+            "email": user.email,
+            "location": user.location,
+            "biography": user.biography,
+            "profile_photo": url_for('get_image', filename=user.profile_photo),
+            "joined_on": user.joined_on,
+            "posts":posts_list
+        }
+
+        for post in posts:
+            if int(post.user_id) == int(current_user.get_id()):
+                posts_list.append(
+                    {
+                        "id": post.id,
+                        "user_id": post.user_id,
+                        "photo": url_for('get_image', filename=post.photo),
+                        "caption": post.caption,
+                        "created_on":post.created_on,   
+                    }
+                )
+        
+        return jsonify(json_user=json_user)
+
+@app.route('/api/users/{user_id}/follow', methods = ['POST'])
+def follow(user_id):
+    data = request.get_json()
+    #so the follow request is in the database
+    if request.method == 'POST':
+         try:
+             follower_id = data['follower_id']
+             id = data['id']
+             user_id = current_user['user_id']
+             follow = Follow(id, user_id, follower_id)
+             db.session.add(follow)
+             db.session.commit()
+             
+             success = f"You are now following user {user_id}."
+             return jsonify(message=success), 201
+         except Exception as e:
+           return {"Failure to add because of:": str(e)}
+       
+            #Flash message to indicate that an error occurred
+
+@app.route('/api/v1/users/<user_id>/posts', methods=['POST','GET'])
+@login_required
+def posts(user_id):
+    newpost = NewPost()
+
+    if current_user.is_authenticated:
+        user_id = current_user.get_id()
+
+    if request.method == 'POST':
+        if newpost.validate_on_submit():
+
+            caption = newpost.caption.data
+
+            photo = newpost.photo.data
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            
+            #user_id = userID
+            post = Post(caption, filename, user_id, created_on=datetime.now())
+            db.session.add(post)
+            db.session.commit()
+
+            json_message = {
+                "message":'Successfully created a new post'
+                """"caption":caption,
+                "photo":filename,
+                "userID":user_id,
+                "created_on":post.created_on"""
+            }
+            return jsonify(json_message=json_message)
+        #return jsonify(errors=form_errors(newpost))
+
+    if request.method == 'GET':
+        user = db.session.execute(db.select(User).filter_by(id=user_id)).scalar()
+
+        posts = db.session.execute(db.select(Post)).scalars()
+        posts_data = []
+        
+        
+        for post in posts:
+            if int(post.user_id) == int(current_user.get_id()):
+                likes = db.session.query(Post).join(Like,post.user_id==Like.user_id).count()
+                posts_data.append(
+                {
+                    "id":post.id,
+                    "user": {
+                    "profile_photo": url_for('get_image', filename=user.profile_photo),
+                    "username": user.username
+                    },
+                    "userid":post.user_id,
+                    "photo":url_for('get_image', filename=post.photo),
+                    "caption":post.caption,
+                    "created_on":post.created_on,
+                    "likes":likes
+                })
+        return jsonify(posts=posts_data),200
+
+
 """"returns all posts for users"""
 @app.route('/api/v1/posts', methods=['POST','GET'])
 @login_required
@@ -378,7 +483,6 @@ def get_posts():
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
 @login_required
 def set_like(post_id):
-
     if request.method == 'POST': 
         
         isLiked = Like.query.filter(Like.post_id == post_id).filter(Like.user_id == current_user.id ).first()

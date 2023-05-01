@@ -1,6 +1,6 @@
 <template>
     <div class="profile-container">
-      <div class="profile-info">
+      <div class="profile-info" v-for="user in user_data">
         <img :src="user.profile_photo" class="pp" alt="Profile Picture" />
         <h3>{{ user.name }}</h3>
         <p>@{{ user.username }}</p>
@@ -46,8 +46,10 @@
 import { ref, onMounted } from "vue";
 let user = ref("");
 let user_id = ref("");
+let user_data = ref([]);
 let isFollowing = ref(false);
 let posts = ref([]);
+let csrf_token = ref("");
 
 function getCsrfToken() {
     fetch('/api/v1/csrf-token')
@@ -66,12 +68,14 @@ onMounted(() => {
 });
 
 function getUser(){
-  fetch("/api/v1/users/user_id", {
-        method: 'GET'
+  fetch("/api/v1/users/{user_id}", {
+        method: 'GET',
+        headers: { "X-CSRFToken": csrf_token.value },
     })
     .then((response) => response.json())
     .then((data) => {
-      user_id.value = data.user_id;
+      user_data.value = data
+      console.log(data)
     })
     .catch((error) => {
       console.log(error);
@@ -84,8 +88,8 @@ function getPosts(){
     })
     .then(response => response.json())
     .then(data => {
-      console.log(posts);
       posts.value = data.posts;
+      console.log("posts",posts)
     })
     .catch(error => {
       console.log(error);
