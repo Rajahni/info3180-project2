@@ -389,7 +389,7 @@ def get_user():
 @login_required
 
 def follow(user_id):
-    follower_id = current_user.id
+    data = request.get_json()
     #so the follow request is in the database
     if request.method == 'POST':
         try:
