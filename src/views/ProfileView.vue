@@ -1,6 +1,6 @@
 <template>
     <div class="profile-container">
-      <div class="profile-info" v-for="user in user_data">
+      <div v-for="user in user_data">
         <img :src="user.profile_photo" class="pp" alt="Profile Picture" />
         <h3>{{ user.name }}</h3>
         <p>@{{ user.username }}</p>
@@ -88,6 +88,7 @@ function getPosts(){
     })
     .then(response => response.json())
     .then(data => {
+      console.log(posts);
       posts.value = data.posts;
       console.log("posts",posts)
     })

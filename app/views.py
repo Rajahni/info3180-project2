@@ -48,7 +48,7 @@ def adduser():
             filename = secure_filename(profile_photo.filename)
             profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            user = User(username, password, firstname, lastname, email, location, biography, profile_photo=filename, joined_on=datetime.datetime.now())
+            user = User(username, password, firstname, lastname, email, location, biography, profile_photo=filename, joined_on=datetime.now())
             #                                                                                                                  #
             usersrch = db.session.execute(db.select(User).filter_by(username=user.username)).scalar()
             emailsrch = db.session.execute(db.select(User).filter_by(email=user.email)).scalar()
@@ -181,10 +181,10 @@ def logout():
 def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
 
-
-"""@app.route('/api/v1/users/{user_id}/posts', methods=['POST','GET'])
+# Add new post by user
+@app.route('/api/v1/users/{user_id}/posts', methods=['POST'])
 @login_required
-def posts():
+def add_post():
     newpost = NewPost()
 
     if current_user.is_authenticated:
@@ -212,7 +212,14 @@ def posts():
                 "created_on":post.created_on
             }
             return jsonify(json_message=json_message)
-        #return jsonify(errors=form_errors(newpost))
+        return jsonify(errors=form_errors(newpost))
+
+# get all posts by user    
+"""@app.route('/api/v1/users/{user_id}/posts', methods=['GET'])
+@login_required
+def view_posts():
+    if current_user.is_authenticated:
+        userID = current_user.get_id()
 
     if request.method == 'GET':
         user = db.session.execute(db.select(User).filter_by(id=userID)).scalar()
@@ -243,11 +250,12 @@ def posts():
 """@app.route('/api/v1/users/user_id', methods=['GET'])
 def get_user():
     if current_user.is_authenticated:
-        userID = current_user.get_id()
+        user_id = current_user.get_id()
 
     if request.method == 'GET':
-        user = db.session.execute(db.select(User).filter_by(id=userID)).scalar()
-        posts = db.session.execute(db.select(Post)).scalars()
+        user = db.session.execute(db.select(User).filter_by(id=user_id)).scalar()
+        posts = db.session.execute(db.select(Post).filter_by(user_id=user_id)).scalars()
+        # posts = db.session.execute(db.select(Post)).scalars()
         posts_list = []
 
         json_user = {
@@ -283,9 +291,9 @@ def follow(user_id):
     if request.method == 'POST':
          try:
              follower_id = data['follower_id']
-             id = data['id']
-             user_id = current_user['user_id']
-             follow = Follow(id, user_id, follower_id)
+            #  id = data['id']
+            #  user_id = current_user['user_id']
+             follow = Follow(user_id, follower_id)
              db.session.add(follow)
              db.session.commit()
              
