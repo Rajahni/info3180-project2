@@ -1,57 +1,35 @@
 <template>
   <div class="profile-container">
-    <div v-for="user in user_data">
-      <div class="card">
+    <div class="col-lg-8">
+      <div v-for="user in user_data" class="profile-info">
         <div class="row g-0">
           <div class="col-sm-3">
-            <img
-              :src="user.profile_photo"
-              class="card-img-left"
-              alt="Profile Picture"
-            />
+            <img :src="user.profile_photo" class="pp" alt="Profile Picture" />
           </div>
-          <div class="col-lg-7">
-            <div class="card-body">
-              <h5 id="name" class="card-title">
-                {{ user.username }} {{ user.username }}
-              </h5>
-              <br />
-              <p class="card-text">{{ user.location }} lorem epsom</p>
-              <p class="card-text">
-                Member since {{ user.joined }} lorem epsom
-              </p>
-              <p class="card-text">{{ user.bio }} lorem epsom</p>
+          <div class="col-6">
+            <div class="name-container">
+              <h3>{{ user.firstname }} {{ user.lastname }}</h3>
+              <p>{{ user.location }}</p>
+              <p class="bio">{{ user.biography }}</p>
+              <p>Member since {{ user.joined_on }}</p>
             </div>
           </div>
-          <div class="col-sm-2">
-            <div class="card-body">
-              <div class="row align-items-start">
-                <div class="col">Posts_Num</div>
-                <div class="col">Followers_Num</div>
-                <div class="col">Post</div>
-                <div class="col">Follows</div>
-                <br />
-                <br />
-                <br />
-                <a href="#" class="btn btn-primary">Follow</a>
+          <div class="col-3">
+            <div class="stats-panel">
+              <div class="stats">
+                <h6 class="count">1</h6>
+                <span>Posts</span>
+              </div>
+              <div class="stats">
+                <h6 class="count">99</h6>
+                <span>Followers</span>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <br />
-    <div class="container text-center">
-      <div class="row">
-        <div class="col" v-for="post in posts" :key="post.id">
-          <img :src="post.photo" alt="Post Photo" />
-          <div class="row align-items-start">
-            <div class="col">{{ post.likes }} likes</div>
-            <div class="col">
-              {{ post.created_on }}
+            <div class="follow-btn">
+              <button :class="{ followed: user.followed }" @click="follow(user)">{{ isFollowing ? 'Following' : 'Follow' }}</button>
+              <!-- <button :class="{ 'followed': isFollowing }" @click="follow">{{ isFollowing ? 'Following' : 'Follow' }}</button> -->
             </div>
           </div>
-          {{ post.caption }}
         </div>
       </div>
     </div>
@@ -82,21 +60,18 @@
     </div>
   </div>
   <div class="image-grid-container">
-        <div class="image-grid">
-          <div v-for="post in posts" :key="post.id" class="image-grid-item">
-            <img :src="post.photo" alt="Uploaded photo"/>
-          </div>
-        </div>
+    <div class="image-grid">
+      <div v-for="post in posts" :key="post.id" class="image-grid-item">
+        <img :src="post.photo" alt="Uploaded photo"/>
       </div>
-      </div>-->
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-// // let user = ref("");
-// // let user_id = ref("");
 let user_data = ref([]);
-//let isFollowing = ref(false);
+let isFollowing = ref(false);
 let posts = ref([]);
 let csrf_token = ref("");
 
@@ -109,14 +84,7 @@ function getCsrfToken() {
     });
 }
 
-onMounted(() => {
-  getCsrfToken();
-  getUser();
-  getPosts();
-  //getFollowers();
-});
-
-function getUser() {
+function getUser(){
   fetch("/api/v1/users/{user_id}", {
     method: "GET",
     headers: { "X-CSRFToken": csrf_token.value },
@@ -150,21 +118,18 @@ function follow(user_id, follower_id)  {
   fetch("/api/users/{user_id}/follow", { 
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       'X-CSRFToken': csrf_token.value
-    },
-    body: JSON.stringify({ id: user_id, follower_id: follower_id }),
+    }
   })
-    .then((response) => {
-      if (response.ok) {
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.ok) {
         isFollowing.value = !isFollowing.value;
+        console.log(data)
         return response.json();
       } else {
         throw new Error("Failed to follow user");
       }
-    })
-    .then((data) => {
-      console.log(data.message);
     })
     .catch((error) => {
       console.log(error.message);
@@ -190,8 +155,63 @@ function getFollowers(){
 </script>
 
 <style>
-img {
+.image-grid-item {
+  margin-top: 5%;
+  padding: 2%;
+}
+
+.image-grid-item img {
+  width: 400px;
   height: 300px;
-  width: 300px;
+}
+
+.profile-container {
+  padding: 2%;
+  margin: 2%;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+} 
+
+.pp {
+  width: 100%;
+  height: 100%;
+  margin-bottom: 10px;
+}
+
+.name-container {
+  margin-top: 10%;
+  margin-left: 10px;
+}
+
+.name-container h3 {
+  font-weight: bold;
+}
+
+.stats {
+  margin-right: 40px;
+}
+
+.stats-panel {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 15px;
+    margin-top: 40%;
+    margin-left: 368px;
+}
+
+.count {
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.follow-btn {
+  margin-left: 365px;
+}
+
+.followed {
+  background-color: green;
+  color: white;
 }
 </style>
