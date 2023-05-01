@@ -1,51 +1,42 @@
 <template>
-    <div class="profile-container">
-      <div v-for="user in user_data">
+  <div class="profile-container">
+    <div v-for="user in user_data" class="profile-info">
+      <div class="name-container">
         <img :src="user.profile_photo" class="pp" alt="Profile Picture" />
-        <h3>{{ user.name }}</h3>
-        <p>@{{ user.username }}</p>
-        <p>{{ user.location }}</p>
-        <p>Member since {{ user.joined }}</p>
+        <h3>{{ user.firstname }} {{ user.lastname }}</h3>
       </div>
-      <p class="para">{{ user.bio }}</p>
+      <p>{{ user.location }}</p>
+      <p class="bio">{{ user.biography }}</p>
+      <p>Member since {{ user.joined_on }}</p>
       <div class="stats-panel">
         <div class="stats">
-          <h6 class="count">{{ user.posts }}</h6>
+          <h6 class="count">1</h6>
           <span>Posts</span>
         </div>
         <div class="stats">
-          <h6 class="count">{{ user.following }}</h6>
-          <span>Following</span>
-        </div>
-        <div class="stats">
-          <h6 class="count">{{ user.followers }}</h6>
+          <h6 class="count">99</h6>
           <span>Followers</span>
         </div>
       </div>
       <div class="follow-btn">
-        <button>{{ isFollowing ? 'Unfollow' : 'Follow' }}</button>
+        <button :class="{ 'followed': isFollowing }" @click="follow">{{ isFollowing ? 'Following' : 'Follow' }}</button>
       </div>
-      <div class="image-grid-container">
-      <div class="image-grid">
-        <div v-for="image in images" :key="image.id" class="image-grid-item">
-          <img :src="image.url" alt="uploaded photo"/>
-
-          <div v-for="post in posts" :key="post.id">
-            <img :src="post.photo" alt="Post Photo" />
-            <p>{{ post.caption }}</p>
-            <p>{{ post.created_on }}</p>
-            <p>{{ post.likes }} likes</p>
+    </div>
+  </div>
+  <div class="image-grid-container">
+        <div class="image-grid">
+          <div v-for="post in posts" :key="post.id" class="image-grid-item">
+            <img :src="post.photo" alt="Uploaded photo"/>
           </div>
         </div>
       </div>
-      </div>
-    </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-let user = ref("");
-let user_id = ref("");
+// let user = ref("");
+// let user_id = ref("");
+let follow = ref
 let user_data = ref([]);
 let isFollowing = ref(false);
 let posts = ref([]);
@@ -59,13 +50,6 @@ function getCsrfToken() {
         csrf_token.value = data.csrf_token;
     })
 }
-
-onMounted(() => {
-  getCsrfToken();
-  getUser();
-  getPosts();
-  getFollowers();
-});
 
 function getUser(){
   fetch("/api/v1/users/{user_id}", {
@@ -97,20 +81,142 @@ function getPosts(){
     });
 }
 
-function getFollowers(){
-  fetch("/api/v1/users/user_id/follow")
-    .then((response) => response.json())
+function follow(user_id, follower_id) {
+  fetch("/api/users/{user_id}/follow", { 
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      'X-CSRFToken': csrf_token.value
+    },
+    body: JSON.stringify({ id: user_id, follower_id: follower_id }),
+  })
+    .then((response) => {
+      if (response.ok) {
+        isFollowing.value = !isFollowing.value;
+        return response.json();
+      } else {
+        throw new Error("Failed to follow user");
+      }
+    })
     .then((data) => {
-      isFollowing.value = data.isFollowing;
+      console.log(data.message);
     })
     .catch((error) => {
-      console.log(error);
+      console.log(error.message);
     });
 }
 
+onMounted(() => {
+  getCsrfToken();
+  getUser();
+  getPosts();
+  follow();
+});
+
+// function getFollowers(){
+//   fetch("/api/v1/users/user_id/follow")
+//     .then((response) => response.json())
+//     .then((data) => {
+//       isFollowing.value = data.isFollowing;
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// }
 </script>
 
 <style>
-/* add your styling here */
-</style>
+.image-grid-container {
+  /* margin-top: 5%; */
+  margin: 0 auto;
+  width: 50%;
+  height: 570px;
 
+  /* border: 1px solid black; */
+}
+
+.image-grid-item {
+  margin-top: 5%;
+  padding: 2%;
+  /* border: 1px solid black; */
+}
+
+.image-grid-item img {
+  width: 50%;
+  height: 50%;
+}
+
+.profile-container {
+    margin: 0 auto;
+    width: 50%;
+    height: 570px;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    padding: 0;
+} 
+
+.profile-info {
+  display: flex;
+  /* border: 1px solid black; */
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pp {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
+
+.name-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.name-container h3 {
+  font-weight: bold;
+  margin-bottom: none;
+  padding-bottom: none;
+}
+
+.name-container p {
+  padding: none;
+  margin: none;
+}
+
+.stats-panel {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.stats {
+  margin-right: 20px;
+  margin-left: 25px;
+}
+
+.count {
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.bio {
+  margin: 0 20px;
+  padding: 0;
+}
+
+.f-btn {
+  width: 250px;
+}
+
+.followed {
+  background-color: green;
+  color: white;
+}
+</style>
