@@ -45,11 +45,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-// // let user = ref("");
-// // let user_id = ref("");
-let follow = ref
 let user_data = ref([]);
-//let isFollowing = ref(false);
+let isFollowing = ref(false);
 let posts = ref([]);
 let csrf_token = ref("");
 
@@ -62,14 +59,7 @@ function getCsrfToken() {
     });
 }
 
-onMounted(() => {
-  getCsrfToken();
-  getUser();
-  getPosts();
-  getFollowers();
-});
-
-function getUser() {
+function getUser(){
   fetch("/api/v1/users/{user_id}", {
     method: "GET",
     headers: { "X-CSRFToken": csrf_token.value },
@@ -99,7 +89,7 @@ function getPosts() {
     });
 }
 
-function follow(user_id, follower_id)  {
+function follow(user)  {
   fetch("/api/users/{user_id}/follow", { 
     method: "POST",
     headers: {
@@ -120,74 +110,70 @@ function follow(user_id, follower_id)  {
       console.log(error.message);
     });
 }
+
+// function follow(user)  {
+//   fetch("/api/users/{user_id}/follow", { 
+//     method: "POST",
+//     headers: {
+//       'X-CSRFToken': csrf_token.value
+//     }
+//   })
+//     .then((response) => response.json())
+//     .then((data) => {
+//       if (!user.followed) {
+//         isFollowing = true;
+//         console.log(data);
+//       } else {
+//         throw new Error("Failed to follow user");
+//       }
+//     })
+//     .catch((error) => {
+//       console.log(error.message);
+//     });
+// }
+
 onMounted(() => {
   getCsrfToken();
   getUser();
   getPosts();
-  //follow();
+  follow();
 });
 </script>
 
 <style>
-.image-grid-container {
-  /* margin-top: 5%; */
-  margin: 0 auto;
-  width: 50%;
-  height: 570px;
-
-  /* border: 1px solid black; */
-}
-
 .image-grid-item {
   margin-top: 5%;
   padding: 2%;
-  /* border: 1px solid black; */
 }
 
 .image-grid-item img {
-  width: 50%;
-  height: 50%;
+  width: 400px;
+  height: 300px;
 }
 
 .profile-container {
-    margin: 0 auto;
-    width: 50%;
-    height: 570px;
-    border-radius: 4px;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    padding: 0;
+  padding: 2%;
+  margin: 2%;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 } 
 
-.profile-info {
-  display: flex;
-  /* border: 1px solid black; */
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
 .pp {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
   margin-bottom: 10px;
-  margin-top: 15px;
 }
 
 .name-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin-top: 10%;
+  margin-left: 10px;
 }
 
 .name-container h3 {
   font-weight: bold;
-  margin-bottom: none;
-  padding-bottom: none;
 }
 
-.name-container p {
-  padding: none;
-  margin: none;
+.stats {
+  margin-right: 40px;
 }
 
 .stats-panel {
@@ -195,11 +181,8 @@ onMounted(() => {
     justify-content: space-between; 
     align-items: center;
     margin-bottom: 15px;
-}
-
-.stats {
-  margin-right: 20px;
-  margin-left: 25px;
+    margin-top: 40%;
+    margin-left: 368px;
 }
 
 .count {
@@ -209,13 +192,8 @@ onMounted(() => {
     margin-bottom: 0;
 }
 
-.bio {
-  margin: 0 20px;
-  padding: 0;
-}
-
-.f-btn {
-  width: 250px;
+.follow-btn {
+  margin-left: 365px;
 }
 
 .followed {
