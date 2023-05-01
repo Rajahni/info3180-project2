@@ -99,8 +99,8 @@ def login():
 
         user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
         
-        #if user is not None and check_password_hash(user.password, password):
-        if user is not None and user.password == password:
+        if user is not None and check_password_hash(user.password, password):
+        #if user is not None and user.password == password:
             remember_me = False
 
             login_user(user)
@@ -182,15 +182,12 @@ def get_csrf():
     return jsonify({'csrf_token': generate_csrf()})
 
 # Add new post by user
-@app.route('/api/v1/users/{user_id}/posts', methods=['POST'])
+@app.route('/api/v1/users/<user_id>/posts', methods=['POST'])
 @login_required
-def add_post():
+def add_post(user_id):
     newpost = NewPost()
 
-    if current_user.is_authenticated:
-        userID = current_user.get_id()
-
-    if request.method == 'POST':
+    if current_user.is_authenticated and request.method == 'POST':
         if newpost.validate_on_submit():
 
             caption = newpost.caption.data
@@ -199,7 +196,6 @@ def add_post():
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             
-            user_id = userID
             post = Post(caption, filename, user_id, created_on=datetime.now())
             db.session.add(post)
             db.session.commit()
@@ -208,16 +204,16 @@ def add_post():
                 "message":'Successfully created a new post',
                 "caption":caption,
                 "photo":filename,
-                "userID":user_id,
+                "user_id":user_id,
                 "created_on":post.created_on
             }
             return jsonify(json_message=json_message)
         return jsonify(errors=form_errors(newpost))
 
 # get all posts by user    
-"""@app.route('/api/v1/users/{user_id}/posts', methods=['GET'])
+"""@app.route('/api/v1/users/<user_id>/posts', methods=['GET'])
 @login_required
-def view_posts():
+def view_posts(user_id):
     if current_user.is_authenticated:
         userID = current_user.get_id()
 
@@ -389,25 +385,56 @@ def get_user():
         
         return jsonify(json_user=json_user)
 
-@app.route('/api/users/{user_id}/follow', methods = ['POST'])
+@app.route('/api/users/<user_id>/follow', methods = ['POST'])
+@login_required
+
 def follow(user_id):
-    data = request.get_json()
+    follower_id = current_user.id
     #so the follow request is in the database
     if request.method == 'POST':
-         try:
-             follower_id = data['follower_id']
-             id = data['id']
-             user_id = current_user['user_id']
-             follow = Follow(id, user_id, follower_id)
-             db.session.add(follow)
-             db.session.commit()
-             
-             success = f"You are now following user {user_id}."
-             return jsonify(message=success), 201
-         except Exception as e:
-           return {"Failure to add because of:": str(e)}
+        try:
+            user = db.session.execute(db.select(User).filter_by(id=user_id)).scalar()
+            if user is None:
+                return jsonify({'error':'User does not exist'}), 404
+            
+            elif user is not None:
+                # follows_list = []
+                follows = db.session.execute(db.select(Follow)).scalars()
+                for follow in follows:
+                    print(follow.follower_id)
+                    if int(follow.follower_id)==int(follower_id) and int(follow.user_id)==int(user_id):
+                        return jsonify({'error':f'Already following {user.username}'})
+
+                follow = Follow(follower_id,user_id)
+                db.session.add(follow)
+                db.session.commit()
+                
+                success = f"You are now following user {user.username}."
+                return jsonify(message=success), 201
+        
+        except Exception as e:
+            return {"Failure to add because of:": str(e)}
        
             #Flash message to indicate that an error occurred
+
+# @app.route('/api/users/<user_id>/follow', methods=['POST'])
+# @login_required
+# # @requires_auth
+# def follow(user_id):
+#     try:
+#         # Check if the user exists
+#         user = User.query.filter_by(id=user_id).first()
+#         if user is None:
+#             return jsonify({'error': 'User not found'}), 404
+
+#         # Add the follower and user to the Follows table
+#         follow = Follow(follower_id=current_user.id, user_id=user_id)
+#         db.session.add(follow)
+#         db.session.commit()
+
+#         return jsonify({'message': 'You are now following {}!'.format(user.username)}), 200
+#     except:
+#         return jsonify({'error': 'Unable to follow user'}), 500
 
 @app.route('/api/v1/users/<user_id>/posts', methods=['POST','GET'])
 @login_required
@@ -449,7 +476,7 @@ def posts(user_id):
         
         
         for post in posts:
-            if int(post.user_id) == int(current_user.get_id()):
+            if int(post.user_id) == int(user_id):
                 likes = db.session.query(Post).join(Like,post.user_id==Like.user_id).count()
                 posts_data.append(
                 {
@@ -475,10 +502,15 @@ def get_posts():
         posts = db.session.execute(db.select(Post)).scalars()
         posts_list = []
         for post in posts:
+            user = db.session.execute(db.select(User).filter_by(id=post.user_id)).scalar()
             likes = len(db.session.execute(db.select(Like).filter_by(id=post.id)).all())
             posts_list.append(
                 {
                     "id": post.id,
+                    "user": {
+                    "profile_photo": url_for('get_image', filename=user.profile_photo),
+                    "username": user.username
+                    },
                     "user_id": post.user_id,
                     "photo": url_for('get_image', filename=post.photo),
                     "caption": post.caption,
@@ -491,10 +523,13 @@ def get_posts():
 @app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
 @login_required
 def set_like(post_id):
+    post = db.session.execute(db.select(Post).filter_by(id = post_id)).scalar()
+    num_of_likes = len(db.session.execute(db.select(Like).filter_by(post_id=post.id)).all())
+
     if request.method == 'POST': 
         
         isLiked = Like.query.filter(Like.post_id == post_id).filter(Like.user_id == current_user.id ).first()
-
+        
         if isLiked == None: 
             like = Like(post_id, current_user.id)
             db.session.add(like)
@@ -502,7 +537,7 @@ def set_like(post_id):
         else:
             json_message = {
                 "message": "You already liked this post!",
-                "likes": num_of_likes ,
+                "likes": num_of_likes
             }
             return jsonify(json_message=json_message),400
         

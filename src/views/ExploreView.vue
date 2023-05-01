@@ -14,7 +14,7 @@ function getCsrfToken() {
 }
 
 function fetchPosts() {
-  fetch("/api/v1/users/{user_id}/posts")
+  fetch("/api/v1/posts")
     .then((response) => response.json())
     .then((data) => {
       posts.value = data.posts.map((post) => {

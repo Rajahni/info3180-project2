@@ -55,7 +55,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> 
 
   <!--<img :src="user.profile_photo" class="pp" alt="Profile Picture" />
         <h3>{{ user.name }}</h3>
@@ -146,7 +146,7 @@ function getPosts() {
     });
 }
 
-/*function follow(user_id, follower_id)  {
+function follow(user_id, follower_id)  {
   fetch("/api/users/{user_id}/follow", { 
     method: "POST",
     headers: {
@@ -169,24 +169,24 @@ function getPosts() {
     .catch((error) => {
       console.log(error.message);
     });
-}*/
+}
 onMounted(() => {
   getCsrfToken();
   getUser();
   getPosts();
-  //follow();
+  follow();
 });
 
-// function getFollowers(){
-//   fetch("/api/v1/users/user_id/follow")
-//     .then((response) => response.json())
-//     .then((data) => {
-//       isFollowing.value = data.isFollowing;
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     });
-// }
+function getFollowers(){
+  fetch("/api/v1/users/user_id/follow")
+    .then((response) => response.json())
+    .then((data) => {
+      isFollowing.value = data.isFollowing;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 </script>
 
 <style>

@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
       <div class="container-fluid">
         <a class="navbar-brand" href="/" style="display: flex; align-items: center;">
-          <span class="nav-icon"><img alt="Photogram logo" class="nav-logo" src="logo.png"/></span>
+          <!-- <span class="nav-icon"><img alt="Photogram logo" class="nav-logo" src="logo.png"/></span> --> #should comment back in at some point before final push
           <span class="Nav-name">Photogram</span>
         </a>
         <button
