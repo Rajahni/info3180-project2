@@ -95,9 +95,8 @@
 import { ref, onMounted } from "vue";
 // // let user = ref("");
 // // let user_id = ref("");
-let follow = ref
 let user_data = ref([]);
-let isFollowing = ref(false);
+//let isFollowing = ref(false);
 let posts = ref([]);
 let csrf_token = ref("");
 
@@ -114,10 +113,10 @@ onMounted(() => {
   getCsrfToken();
   getUser();
   getPosts();
-  getFollowers();
+  //getFollowers();
 });
 
-function getUser(){
+function getUser() {
   fetch("/api/v1/users/{user_id}", {
     method: "GET",
     headers: { "X-CSRFToken": csrf_token.value },
@@ -147,7 +146,7 @@ function getPosts() {
     });
 }
 
-function follow(user_id, follower_id)  {
+/*function follow(user_id, follower_id)  {
   fetch("/api/users/{user_id}/follow", { 
     method: "POST",
     headers: {
@@ -170,12 +169,12 @@ function follow(user_id, follower_id)  {
     .catch((error) => {
       console.log(error.message);
     });
-}
+}*/
 onMounted(() => {
   getCsrfToken();
   getUser();
   getPosts();
-  follow();
+  //follow();
 });
 
 // function getFollowers(){
@@ -191,97 +190,8 @@ onMounted(() => {
 </script>
 
 <style>
-.image-grid-container {
-  /* margin-top: 5%; */
-  margin: 0 auto;
-  width: 50%;
-  height: 570px;
-
-  /* border: 1px solid black; */
-}
-
-.image-grid-item {
-  margin-top: 5%;
-  padding: 2%;
-  /* border: 1px solid black; */
-}
-
-.image-grid-item img {
-  width: 50%;
-  height: 50%;
-}
-
-.profile-container {
-    margin: 0 auto;
-    width: 50%;
-    height: 570px;
-    border-radius: 4px;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    padding: 0;
-} 
-
-.profile-info {
-  display: flex;
-  /* border: 1px solid black; */
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.pp {
-  width: 200px;
-  height: 200px;
-  margin-bottom: 10px;
-  margin-top: 15px;
-}
-
-.name-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.name-container h3 {
-  font-weight: bold;
-  margin-bottom: none;
-  padding-bottom: none;
-}
-
-.name-container p {
-  padding: none;
-  margin: none;
-}
-
-.stats-panel {
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.stats {
-  margin-right: 20px;
-  margin-left: 25px;
-}
-
-.count {
-    font-weight: bold;
-    font-size: 20px;
-    text-align: center;
-    margin-bottom: 0;
-}
-
-.bio {
-  margin: 0 20px;
-  padding: 0;
-}
-
-.f-btn {
-  width: 250px;
-}
-
-.followed {
-  background-color: green;
-  color: white;
+img {
+  height: 300px;
+  width: 300px;
 }
 </style>
